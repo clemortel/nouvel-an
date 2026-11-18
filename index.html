@@ -581,7 +581,7 @@ dialog.deck{max-width:520px;height:100dvh;max-height:100dvh;margin:0 auto;border
       <div class="fld"><label for="oName">Nom</label><input type="text" id="oName" maxlength="90" placeholder="Ex. : Longère 6 chambres, Guérande"></div>
       <div class="fld"><label for="oUrl">Lien <span>(facultatif)</span></label><input type="url" id="oUrl" maxlength="500" placeholder="https://"></div>
       <div class="grid2">
-        <div class="fld"><label for="oPrice">Prix</label><input type="text" id="oPrice" maxlength="40" placeholder="Ex. : 1 200 € / 2 nuits"></div>
+        <div class="fld"><label for="oPrice">Prix</label><input type="text" id="oPrice" maxlength="80" placeholder="Ex. : 1 200 € / 2 nuits"></div>
         <div class="fld"><label for="oCap">Capacité</label><input type="text" id="oCap" maxlength="40" placeholder="Ex. : 14 couchages"></div>
       </div>
       <p class="hint">Le prix par personne s'affiche en grand s'il est écrit dans le prix, par exemple « 2 340 € (≈146 €/pers à 16) ».</p>
@@ -655,9 +655,10 @@ const POLL_MS = 20000;
 const BIRTHDAY = { name:"Clémiche", label:"2 janvier", date:new Date("2027-01-02T00:00:00+01:00") };
 // Same for the host named on the invitation.
 const HOST = "Clémiche";
-// Dates a piste covers when its own `dates` field is empty: the plan's,
-// which every listing so far was priced for. A piste with other dates
-// must say so in its field, or its card shows the plan's.
+// Dates a piste covers when its own `dates` field is empty: the dates the
+// group wants, not proof the listing is free or priced for them. Several
+// gîtes quote a low-season price and leave New Year's Eve « sur demande »:
+// their price and note say so, and a piste with other dates fills `dates`.
 const PLAN_DATES = { maison:"Du 30/12 au 1/1", paris:"Nuit du 31/12 au 1/1", soiree:"Le 31/12" };
 // The house plan already counts the group d'Amel (15-16 people) though
 // nobody from it is on the list. It shows as « à confirmer » while an open
@@ -1647,7 +1648,7 @@ async function importJson(){
   if (!Array.isArray(arr)) arr = [arr];
   const clean = arr.filter(x => x && x.title).slice(0,60).map(x => ({
     id:uid(), scenario: x.scenario === "paris" ? "paris" : "maison", kind: ["logement","soiree","autre"].includes(x.kind) ? x.kind : "autre",
-    title:String(x.title).slice(0,90), url: safeUrl(x.url) || "", price:String(x.price||"").slice(0,40), capacity:String(x.capacity||"").slice(0,40),
+    title:String(x.title).slice(0,90), url: safeUrl(x.url) || "", price:String(x.price||"").slice(0,80), capacity:String(x.capacity||"").slice(0,40),
     place:String(x.place||"").slice(0,60), note:String(x.note||"").slice(0,200),
     dates:String(x.dates||"").slice(0,40), warn:String(x.warn||"").slice(0,80), state:"idee", by:"import", at:Date.now() }));
   if (!clean.length){ err.textContent = "Aucun élément avec un « title » trouvé."; return; }
