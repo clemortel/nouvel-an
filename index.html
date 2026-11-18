@@ -759,7 +759,7 @@ function normalize(d){
     people: Array.isArray(d.people) ? d.people : [],
     options: Array.isArray(d.options) ? d.options : [],
     todos: Array.isArray(d.todos) ? d.todos : [],
-    gone: Array.isArray(d.gone) ? d.gone : []
+    gone: Array.isArray(d.gone) ? d.gone.filter(x => typeof x === "string") : []
   };
 }
 // npoint has been seen taking 42 s to answer. Without a cap, `busy` stays
@@ -787,7 +787,10 @@ function setSync(mode){
   $("#syncTxt").textContent = mode==="busy" ? "Enregistrement…" : mode==="err" ? "Hors ligne · réessayer" : `À jour ${ago(lastSync)}`;
 }
 async function refresh(silent){
-  if (busy || !BLOB_ID) return;
+  if (!BLOB_ID) return;
+  // A poll skips a busy moment; a tap waits for its turn instead of being
+  // ignored while a background check runs.
+  if (busy){ if (!silent) serial(() => refresh(false)); return; }
   try{
     const d = await load(); lastSync = Date.now();
     // Votes still waiting to be flushed would vanish from the screen if the
@@ -810,9 +813,10 @@ async function refresh(silent){
    still in flight (a load then a save, TIMEOUT_MS each) to have landed.
    Callbacks must be idempotent: run a second time they change nothing, so
    ids, timestamps and clicked values are fixed before the call, and a
-   creation is skipped once its id is in `gone` (see bury). Trap: while a
-   change is kept, its replay also undoes another guest's edit of the very
-   same field. */
+   creation is skipped once its id is in `gone` (see bury). An edit replays
+   only the fields this guest changed (see changed). Trap: while a change is
+   kept, its replay still undoes another guest's later edit of one of those
+   fields. */
 const CHECK_MS = 4000, SETTLE_MS = 2 * TIMEOUT_MS + 2000, KEEP_MAX_MS = 90000;
 const recent = [];
 let checkT = 0;
@@ -820,7 +824,13 @@ const bare = d => JSON.stringify({...d, updatedAt:0});
 // One write at a time, in the order asked: an action waits for a running
 // check instead of being dropped, and two quick clicks land in order.
 let queue = Promise.resolve();
-const serial = task => { const run = queue.then(task); queue = run.catch(() => {}); return run; };
+const serial = task => {
+  const run = queue.then(task); queue = run.catch(() => {}); return run;
+};
+// Writes asked and not finished: the badge says « Enregistrement… » until
+// the last of them lands, not when the first one does.
+let waiting = 0;
+const settled = () => setSync(waiting ? "busy" : "ok");
 // Since calls wait instead of being dropped, a double tap on a form would
 // queue two creations under two ids. A form sends once until it is done.
 const sending = new Set();
@@ -830,17 +840,22 @@ async function sendOnce(key, task){
   try{ return await task(); } finally{ sending.delete(key); }
 }
 function mutate(fn, okMsg){
-  setSync("busy");
+  waiting++; setSync("busy");
   return serial(async () => {
-    busy = true;
+    busy = true; let ok = false;
     try{
       const d = await load(); fn(d); d.updatedAt = Date.now();
-      await save(d); state = d; lastSync = Date.now(); render(); setSync("ok");
+      await save(d); state = d; lastSync = Date.now();
       recent.push({fn, t:Date.now(), ok:0});
       if (!checkT) checkT = setTimeout(() => serial(recheck), CHECK_MS);
-      if (okMsg) toast(okMsg); return true;
-    }catch(e){ setSync("err"); toast("Pas enregistré : connexion impossible. Réessaie."); return false; }
-    finally{ busy = false; }
+      render(); ok = true;
+    }catch(e){}
+    finally{ busy = false; waiting--; }
+    if (!ok){
+      setSync("err"); toast("Pas enregistré : connexion impossible. Réessaie.");
+      return false;
+    }
+    settled(); if (okMsg) toast(okMsg); return true;
   });
 }
 // Replays the kept changes in order, so a later change of this guest still
@@ -855,24 +870,36 @@ async function recheck(){
     if (bare(want) !== bare(d)){
       want.updatedAt = Date.now(); await save(want); lastSync = Date.now();
       // Same as refresh(): votes not flushed yet stay on screen.
-      const me = myId(); if (me) for (const [oid, v] of pending) setVote(want, me, oid, v);
-      state = want; render(); setSync("ok");
+      const me = myId();
+      if (me) for (const [oid, v] of pending) setVote(want, me, oid, v);
+      state = want; render();
     }
     ok = true;
-  }catch(e){ setSync("err"); }
+  }catch(e){}
   finally{ busy = false; }
+  // A check that worked clears an « Hors ligne » left by one that failed.
+  if (ok) settled(); else setSync("err");
   const now = Date.now();
   for (let i = recent.length - 1; i >= 0; i--){
     const r = recent[i]; if (ok) r.ok++;
-    if ((r.ok >= 2 && now - r.t >= SETTLE_MS) || now - r.t > KEEP_MAX_MS) recent.splice(i, 1);
+    const age = now - r.t;
+    if ((r.ok >= 2 && age >= SETTLE_MS) || age > KEEP_MAX_MS) recent.splice(i, 1);
   }
   if (recent.length) checkT = setTimeout(() => serial(recheck), CHECK_MS);
 }
 // A deletion leaves its id here so that no replay, from any guest, brings
-// the record back. Bounded: only recent deletions can meet a replay.
+// the record back. Bounded: only recent deletions can meet a replay. Trap:
+// a tab still running an older version of this page writes the document
+// without `gone`, which empties the list.
 const GONE_MAX = 200;
-const bury = (d, id) => { if (!d.gone.includes(id)) d.gone = [...d.gone, id].slice(-GONE_MAX); };
+const bury = (d, id) => {
+  if (!d.gone.includes(id)) d.gone = [...d.gone, id].slice(-GONE_MAX);
+};
 const alive = (d, id) => !d.gone.includes(id);
+// The fields of a form that differ from the record as the form opened. An
+// edit writes only these, so its replay leaves the other fields to others.
+const changed = (rec, base) => Object.fromEntries(Object.entries(rec)
+  .filter(([k, v]) => JSON.stringify(v) !== JSON.stringify(base?.[k])));
 
 /* ================= labels ================= */
 const SCN = { maison:"Maison", paris:"Paris" };
@@ -1008,6 +1035,8 @@ const topRow = ({o, t}) => `<li><span class="tt">${esc(o.title)}</span><span cla
 
 function setVote(d, pid, oid, v){
   const o = d.options.find(x => x.id === oid); if (!o) return;
+  // A guest removed meanwhile: a replayed vote would bring their id back.
+  if (d.gone?.includes(pid)) return;
   // Removing a vote that is not there must leave the option untouched, or
   // a replay (see recheck) would read the new empty `votes` as a lost change.
   if (v == null && !(o.votes && pid in o.votes)) return;
@@ -1348,7 +1377,7 @@ function confirmDlg(title, text, yes){
   });
 }
 
-let editingPerson = null, sheetGuests = [];
+let editingPerson = null, personBase = null, sheetGuests = [];
 const checkedVal = name => document.querySelector(`input[name=${name}]:checked`)?.value ?? null;
 function drawGuests(){
   $("#pGuestList").innerHTML = sheetGuests.map((g, i) => `<li>${esc(g)}<button type="button" data-rm="${i}" aria-label="Retirer ${esc(g)}">${svg("x", 16, 2.4)}</button></li>`).join("");
@@ -1369,6 +1398,7 @@ function syncSheet(){
 function openPerson(id, st){
   const p = id ? state.people.find(x => x.id === id) : null;
   editingPerson = p ? p.id : null;
+  personBase = p ? JSON.parse(JSON.stringify(p)) : null;
   const status = p ? (isNo(p) ? "non" : isSure(p) ? "sur" : "probable") : (["sur","probable","non"].includes(st) ? st : "sur");
   const own = p && p.id === ls.get("nye_me");
   $("#pTitle").textContent = p ? (own ? "Modifier ta réponse" : `Modifier · ${p.name}`)
@@ -1434,12 +1464,17 @@ $("#personForm").addEventListener("submit", async e => {
     }
   }
   // Fixed before mutate(): its callback may be replayed (see recheck).
-  const id = editingPerson || uid(), at = Date.now(), isNew = !editingPerson, btn = $("#pSubmit"), label = btn.textContent;
+  const id = editingPerson || uid(), at = Date.now(), isNew = !editingPerson;
+  const base = personBase, patch = changed(rec, base);
+  const btn = $("#pSubmit"), label = btn.textContent;
   btn.disabled = true; btn.textContent = "Enregistrement…";
   const ok = await mutate(d => {
     const i = d.people.findIndex(p => p.id === id);
-    if (i >= 0) d.people[i] = {...d.people[i], ...rec, at};
-    else if (alive(d, id)) d.people.push({id, ...rec, at});
+    if (i >= 0){
+      if (Object.keys(patch).length) d.people[i] = {...d.people[i], ...patch, at};
+    }
+    // Absent: new, or erased by a stale write. Deleted ones stay deleted.
+    else if (alive(d, id)) d.people.push({...base, id, ...rec, at});
   }, !isNew ? "Réponse modifiée" : status === "non" ? "C'est noté, merci d'avoir répondu" : `Bienvenue ${name}, tu es sur la liste`);
   btn.disabled = false; btn.textContent = label;
   if (ok){
@@ -1461,10 +1496,11 @@ $("#pDelete").addEventListener("click", async () => {
   render();
 });
 
-let editingOpt = null;
+let editingOpt = null, optBase = null;
 function openOpt(id){
   const o = id ? state.options.find(x => x.id === id) : null;
   editingOpt = o ? o.id : null;
+  optBase = o ? JSON.parse(JSON.stringify(o)) : null;
   $("#oTitle").textContent = o ? "Modifier la piste" : "Ajouter une piste";
   document.querySelector(`input[name=oScen][value="${o ? scenOf(o) : curTab()}"]`).checked = true;
   document.querySelector(`input[name=oKind][value="${o ? kindOf(o) : "logement"}"]`).checked = true;
@@ -1486,10 +1522,14 @@ $("#optForm").addEventListener("submit", async e => {
     dates:$("#oDates").value.trim(), warn:$("#oWarn").value.trim() };
   const me = state.people.find(p => p.id === ls.get("nye_me"));
   const id = editingOpt || uid(), at = Date.now();
+  const base = optBase || {state:"idee", by: me?.name || "", at};
+  const patch = changed(rec, optBase);
   const ok = await sendOnce("opt", () => mutate(d => {
     const i = d.options.findIndex(o => o.id === id);
-    if (i >= 0) d.options[i] = {...d.options[i], ...rec};
-    else if (alive(d, id)) d.options.push({id, ...rec, state:"idee", by: me?.name || "", at});
+    if (i >= 0){
+      if (Object.keys(patch).length) d.options[i] = {...d.options[i], ...patch};
+    }
+    else if (alive(d, id)) d.options.push({...base, id, ...rec});
   }, editingOpt ? "Piste modifiée" : "Piste ajoutée"));
   if (ok) closeDlg($("#dlgOpt"));
 });
@@ -1711,7 +1751,10 @@ $("#todoForm").addEventListener("submit", async e => {
   e.preventDefault(); const text = $("#todoInput").value.trim(); if (!text || !state) return;
   const me = state.people.find(p => p.id === ls.get("nye_me"));
   const id = uid();
-  const add = d => { if (!d.todos.some(x => x.id === id) && alive(d, id)) d.todos.push({id, text, done:false, by: me?.name || ""}); };
+  const add = d => {
+    if (d.todos.some(x => x.id === id) || !alive(d, id)) return;
+    d.todos.push({id, text, done:false, by: me?.name || ""});
+  };
   if (await sendOnce("todo", () => mutate(add, "Tâche ajoutée"))) $("#todoInput").value = "";
 });
 async function importJson(){
@@ -1724,7 +1767,11 @@ async function importJson(){
     place:String(x.place||"").slice(0,60), note:String(x.note||"").slice(0,200),
     dates:String(x.dates||"").slice(0,40), warn:String(x.warn||"").slice(0,80), state:"idee", by:"import", at:Date.now() }));
   if (!clean.length){ err.textContent = "Aucun élément avec un « title » trouvé."; return; }
-  if (await sendOnce("import", () => mutate(d => { const have = new Set(d.options.map(o => o.id)); d.options.push(...clean.filter(c => !have.has(c.id) && alive(d, c.id))); }, `${clean.length} piste${clean.length>1?"s":""} importée${clean.length>1?"s":""}`))){
+  const addAll = d => {
+    const have = new Set(d.options.map(o => o.id));
+    d.options.push(...clean.filter(c => !have.has(c.id) && alive(d, c.id)));
+  };
+  if (await sendOnce("import", () => mutate(addAll, `${clean.length} piste${clean.length>1?"s":""} importée${clean.length>1?"s":""}`))){
     $("#importTxt").value = ""; closeDlg($("#dlgImport")); location.hash = "pistes";
   }
 }
