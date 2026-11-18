@@ -800,14 +800,44 @@ async function refresh(silent){
       <button class="lnk ink" type="button" data-action="retry">Réessayer</button></div>`;
   }
 }
-/* read-latest → apply → write, so two people editing at once don't erase each other */
+/* read-latest → apply → write. Not enough on its own: npoint replaces the
+   whole document on each POST, so when two guests load at the same second
+   the later write drops the earlier one's change. Each change is kept for
+   a few seconds and replayed on a fresh copy; if replaying alters the copy,
+   the change was lost and is written again. Callbacks must be idempotent:
+   run a second time they change nothing, so ids and timestamps are fixed
+   before the call. Trap: inside that window, a replay also undoes another
+   guest's edit of the very same field. */
+const REPLAY_MS = 12000, CHECKS_MS = [3000, 9000];
+const recent = [];
+const bare = d => JSON.stringify({...d, updatedAt:0});
 async function mutate(fn, okMsg){
   if (busy) return false; busy = true; setSync("busy");
   try{
     const d = await load(); fn(d); d.updatedAt = Date.now();
     await save(d); state = d; lastSync = Date.now(); render(); setSync("ok");
+    recent.push({fn, t:Date.now()}); for (const ms of CHECKS_MS) setTimeout(recheck, ms);
     if (okMsg) toast(okMsg); return true;
   }catch(e){ setSync("err"); toast("Pas enregistré : connexion impossible. Réessaie."); return false; }
+  finally{ busy = false; }
+}
+// Replays every change of the last REPLAY_MS, in order, so a later change
+// of this guest still wins over an earlier one it superseded.
+async function recheck(){
+  const now = Date.now();
+  while (recent.length && now - recent[0].t > REPLAY_MS) recent.shift();
+  if (!recent.length) return;
+  if (busy){ setTimeout(recheck, 700); return; }
+  busy = true;
+  try{
+    const d = await load(), want = JSON.parse(JSON.stringify(d));
+    for (const r of recent) r.fn(want);
+    if (bare(want) === bare(d)) return;
+    want.updatedAt = Date.now(); await save(want); lastSync = Date.now();
+    // Same as refresh(): votes not flushed yet stay on screen.
+    const me = myId(); if (me) for (const [oid, v] of pending) setVote(want, me, oid, v);
+    state = want; render(); setSync("ok");
+  }catch(e){ setTimeout(recheck, 3000); }
   finally{ busy = false; }
 }
 
@@ -945,6 +975,9 @@ const topRow = ({o, t}) => `<li><span class="tt">${esc(o.title)}</span><span cla
 
 function setVote(d, pid, oid, v){
   const o = d.options.find(x => x.id === oid); if (!o) return;
+  // Removing a vote that is not there must leave the option untouched, or
+  // a replay (see recheck) would read the new empty `votes` as a lost change.
+  if (v == null && !(o.votes && pid in o.votes)) return;
   o.votes = {...(o.votes || {})};
   if (v == null) delete o.votes[pid]; else o.votes[pid] = v;
 }
@@ -1367,12 +1400,13 @@ $("#personForm").addEventListener("submit", async e => {
       return;
     }
   }
-  const id = editingPerson || uid(), isNew = !editingPerson, btn = $("#pSubmit"), label = btn.textContent;
+  // Fixed before mutate(): its callback may be replayed (see recheck).
+  const id = editingPerson || uid(), at = Date.now(), isNew = !editingPerson, btn = $("#pSubmit"), label = btn.textContent;
   btn.disabled = true; btn.textContent = "Enregistrement…";
   const ok = await mutate(d => {
     const i = d.people.findIndex(p => p.id === id);
-    if (i >= 0) d.people[i] = {...d.people[i], ...rec, at:Date.now()};
-    else d.people.push({id, ...rec, at:Date.now()});
+    if (i >= 0) d.people[i] = {...d.people[i], ...rec, at};
+    else d.people.push({id, ...rec, at});
   }, !isNew ? "Réponse modifiée" : status === "non" ? "C'est noté, merci d'avoir répondu" : `Bienvenue ${name}, tu es sur la liste`);
   btn.disabled = false; btn.textContent = label;
   if (ok){
@@ -1418,11 +1452,11 @@ $("#optForm").addEventListener("submit", async e => {
     title, url:u, price:$("#oPrice").value.trim(), capacity:$("#oCap").value.trim(), place:$("#oPlace").value.trim(), note:$("#oNote").value.trim(),
     dates:$("#oDates").value.trim(), warn:$("#oWarn").value.trim() };
   const me = state.people.find(p => p.id === ls.get("nye_me"));
-  const id = editingOpt || uid();
+  const id = editingOpt || uid(), at = Date.now();
   const ok = await mutate(d => {
     const i = d.options.findIndex(o => o.id === id);
     if (i >= 0) d.options[i] = {...d.options[i], ...rec};
-    else d.options.push({id, ...rec, state:"idee", by: me?.name || "", at:Date.now()});
+    else d.options.push({id, ...rec, state:"idee", by: me?.name || "", at});
   }, editingOpt ? "Piste modifiée" : "Piste ajoutée");
   if (ok) closeDlg($("#dlgOpt"));
 });
@@ -1634,13 +1668,17 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("change", async e => {
   const el = e.target;
-  if (el.dataset.action === "toggle-todo") await mutate(d => { const t = d.todos.find(x => x.id === el.dataset.id); if (t) t.done = el.checked; });
-  if (el.dataset.action === "opt-state") await mutate(d => { const o = d.options.find(x => x.id === el.dataset.id); if (o) o.state = el.value; }, "Statut mis à jour");
+  // Values read now, not inside the callback: a replay must reapply what
+  // was clicked, not whatever the control holds by then.
+  const id = el.dataset.id, on = el.checked, val = el.value;
+  if (el.dataset.action === "toggle-todo") await mutate(d => { const t = d.todos.find(x => x.id === id); if (t) t.done = on; });
+  if (el.dataset.action === "opt-state") await mutate(d => { const o = d.options.find(x => x.id === id); if (o) o.state = val; }, "Statut mis à jour");
 });
 $("#todoForm").addEventListener("submit", async e => {
   e.preventDefault(); const text = $("#todoInput").value.trim(); if (!text || !state) return;
   const me = state.people.find(p => p.id === ls.get("nye_me"));
-  if (await mutate(d => { d.todos.push({id:uid(), text, done:false, by: me?.name || ""}); }, "Tâche ajoutée")) $("#todoInput").value = "";
+  const id = uid();
+  if (await mutate(d => { if (!d.todos.some(x => x.id === id)) d.todos.push({id, text, done:false, by: me?.name || ""}); }, "Tâche ajoutée")) $("#todoInput").value = "";
 });
 async function importJson(){
   const err = $("#importErr"); err.textContent = "";
@@ -1652,7 +1690,7 @@ async function importJson(){
     place:String(x.place||"").slice(0,60), note:String(x.note||"").slice(0,200),
     dates:String(x.dates||"").slice(0,40), warn:String(x.warn||"").slice(0,80), state:"idee", by:"import", at:Date.now() }));
   if (!clean.length){ err.textContent = "Aucun élément avec un « title » trouvé."; return; }
-  if (await mutate(d => { d.options.push(...clean); }, `${clean.length} piste${clean.length>1?"s":""} importée${clean.length>1?"s":""}`)){
+  if (await mutate(d => { const have = new Set(d.options.map(o => o.id)); d.options.push(...clean.filter(c => !have.has(c.id))); },`${clean.length} piste${clean.length>1?"s":""} importée${clean.length>1?"s":""}`)){
     $("#importTxt").value = ""; closeDlg($("#dlgImport")); location.hash = "pistes";
   }
 }
