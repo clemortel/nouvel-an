@@ -12,13 +12,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --night:#1B1640; --night-2:#262057; --night-3:#322A6E; --night-4:#3E3588;
+  --night:#1B1640; --night-2:#262057; --night-3:#322A6E;
   --ink:#F4F0FF; --muted:#B1AAD9; --faint:#958FC2;
   --fizz:#FFCB47; --fizz-ink:#2A1E00;
-  --sure:#6EE7B7; --maybe:#FF9EB5; --love:#FF7A9C; --no:#FF9580;
+  --sure:#6EE7B7; --sure-ink:#06291C; --maybe:#FF9EB5; --love:#FF7A9C; --no:#FF9580; --paris:#9DB4FF;
   --line:rgba(244,240,255,.12); --line-2:rgba(244,240,255,.22);
-  --r-xl:26px; --r-lg:20px; --r-md:14px; --r-sm:10px;
-  --pad:clamp(18px,5vw,28px);
   --lift:0 20px 45px -22px rgba(6,3,28,.9);
 }
 *{box-sizing:border-box}
@@ -26,445 +24,602 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--night);color:var(--ink);
   font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:16px;line-height:1.45;
   font-variation-settings:"wdth" 100;
-  padding-bottom:calc(104px + env(safe-area-inset-bottom));}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
-  background:
-    radial-gradient(1px 1px at 12% 18%,#fff8 50%,transparent 51%),
-    radial-gradient(1px 1px at 78% 9%,#fff6 50%,transparent 51%),
-    radial-gradient(1.5px 1.5px at 64% 31%,#ffcb4777 50%,transparent 51%),
-    radial-gradient(1px 1px at 31% 44%,#fff5 50%,transparent 51%),
-    radial-gradient(1px 1px at 90% 52%,#fff5 50%,transparent 51%),
-    radial-gradient(1.5px 1.5px at 8% 70%,#ffcb4766 50%,transparent 51%),
-    radial-gradient(1px 1px at 52% 86%,#fff4 50%,transparent 51%),
-    radial-gradient(70% 40% at 90% -8%,rgba(255,203,71,.13),transparent 70%),
-    radial-gradient(80% 45% at -10% -5%,rgba(124,92,255,.25),transparent 70%);}
-a{color:var(--fizz)}
+  padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+body.nonav{padding-bottom:env(safe-area-inset-bottom)}
+a{color:var(--fizz)} a:hover{color:#FFE08A}
 button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
 :focus-visible{outline:3px solid var(--fizz);outline-offset:2px;border-radius:6px}
-.wrap{max-width:680px;margin:0 auto;padding:0 var(--pad)}
+::placeholder{color:var(--faint);opacity:1}
 .hidden{display:none!important}
+.invisible{visibility:hidden}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.m{color:var(--muted)}
+.app{max-width:560px;margin:0 auto}
+.view{position:relative;display:flex;flex-direction:column;gap:18px;padding:20px 20px 8px}
+.view[hidden]{display:none}
+#v-accueil{padding-top:16px;gap:16px}
+#v-piste{padding-top:8px;gap:16px}
+.vstack{display:flex;flex-direction:column;gap:16px}
+.skeleton{color:var(--muted);padding:40px 0;text-align:center}
 
-/* ---------- hero ---------- */
-header.hero{padding:calc(18px + env(safe-area-inset-top)) 0 4px}
-.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:14px;min-height:44px}
-#whoami{font-weight:600;color:var(--ink)}
-.sync{display:inline-flex;align-items:center;gap:8px;background:none;border:0;color:var(--muted);padding:10px 0;cursor:pointer;font-size:14px;margin-left:auto}
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:99px;border:0;background:none;
+  font-weight:700;font-size:16px;text-decoration:none;white-space:nowrap;color:var(--ink)}
+.btn.primary{background:var(--fizz);color:var(--fizz-ink);font-weight:800}
+.btn.primary:hover{color:var(--fizz-ink)}
+.btn.line{border:1.5px solid var(--line-2);color:var(--ink)}
+.btn.ink{background:var(--night);color:var(--fizz);font-weight:800}
+.btn.xl{min-height:56px;font-size:17px}
+.btn.sm{min-height:44px;padding:0 16px;font-size:15px}
+.btn.blk{display:flex;width:100%}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.4;cursor:default}
+.lnk{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0;border:0;background:none;color:var(--fizz);
+  font-weight:700;font-size:14.5px;text-decoration:none}
+.lnk.ink{color:var(--ink)} .lnk.pink{color:var(--maybe)} .lnk.m{color:var(--muted)}
+.eyebrow{margin:0;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+
+/* ---------- shared blocks ---------- */
+.panel{padding:18px;border-radius:20px;background:var(--night-2);border:1px solid var(--line)}
+.h2{margin:0;font-size:20px;font-weight:800;font-variation-settings:"wdth" 85}
+.h3{margin:0;font-size:17px;font-weight:800}
+.sep{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--fizz);border-radius:4px;transition:width .4s}
+.pbar{display:flex;gap:4px;height:10px;margin-top:8px}
+.pbar i{border-radius:5px;background:rgba(244,240,255,.2)}
+.pbar i.maison{background:var(--fizz)} .pbar i.paris{background:var(--paris)}
+.av{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:50%;color:var(--night);font-weight:800;font-size:17px}
+.av.sm{width:36px;height:36px;font-size:15px}
+.av.lg{width:44px;height:44px}
+.av.ghost{background:none;border:1.5px dashed rgba(244,240,255,.3);color:var(--muted)}
+.badge{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:99px;background:var(--fizz);color:var(--fizz-ink);font-size:13px;font-weight:800;white-space:nowrap}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:99px;background:rgba(244,240,255,.1);font-size:13.5px;font-weight:700}
+.tag.fav{background:rgba(255,203,71,.16);color:var(--fizz)}
+.tag.res{background:rgba(110,231,183,.14);color:var(--sure)}
+.none{margin:0;color:var(--faint);font-size:14.5px}
+.empty{padding:22px;border:1.5px dashed var(--line-2);border-radius:20px;color:var(--muted);text-align:center}
+.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:4px}
+.vhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.vhead h1{margin:0;font-size:36px;line-height:1;font-weight:800;font-variation-settings:"wdth" 80}
+.vhead p{margin:6px 0 0;color:var(--muted);font-size:15px}
+.sechead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+ol.top{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;counter-reset:r}
+ol.top li{display:flex;align-items:baseline;gap:10px;counter-increment:r;font-size:15.5px}
+ol.top li::before{content:counter(r);flex:none;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;
+  font-size:13px;font-weight:800;background:var(--night-3)}
+ol.top .tt{flex:1;min-width:0;font-weight:600}
+ol.top .sc{font-weight:800;font-variant-numeric:tabular-nums;color:var(--sure)}
+.bday{display:flex;align-items:flex-start;gap:10px;font-size:14.5px}
+.bday > svg{flex:none;color:var(--love);margin-top:1px}
+.bday small{display:block;color:var(--muted);font-size:13.5px}
+
+/* ---------- orga bar, banner, footer ---------- */
+.orgabar{position:sticky;top:0;z-index:9;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:44px;padding:0 20px;
+  background:var(--fizz);color:var(--fizz-ink)}
+.orgabar span{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14.5px}
+.orgabar button{min-height:44px;padding:0;border:0;background:none;color:var(--fizz-ink);font-weight:800;font-size:14.5px;text-decoration:underline}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 20px 0;padding:4px 8px 4px 16px;border-radius:14px;
+  background:rgba(255,158,181,.14);color:#FFD3DD;font-size:15px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:4px 12px;flex-wrap:wrap;padding:24px 20px 8px}
+.sync{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0;border:0;background:none;color:var(--faint);font-size:13.5px}
 .sync .dot{width:8px;height:8px;border-radius:50%;background:var(--sure)}
 .sync.busy .dot{background:var(--fizz);animation:pulse 1s infinite}
 .sync.err .dot{background:var(--maybe)}
 @keyframes pulse{50%{opacity:.3}}
-h1{margin:14px 0 0;font-size:clamp(44px,13vw,72px);line-height:.9;font-weight:800;
-  font-variation-settings:"wdth" 76;letter-spacing:-.015em}
-h1 .yr{display:block;color:var(--fizz)}
-.countdown{display:inline-flex;align-items:center;gap:9px;margin:16px 0 0;padding:7px 14px;border-radius:99px;
-  background:rgba(255,203,71,.1);border:1px solid rgba(255,203,71,.28);color:var(--fizz);font-weight:600;font-size:15px}
-.countdown::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--fizz);flex:none}
+.foot .lnk{font-size:13.5px}
 
-.headcount{margin:28px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 18px;align-items:end}
-.headcount .big{font-size:clamp(88px,30vw,150px);line-height:.8;font-weight:800;font-variation-settings:"wdth" 75;
-  color:var(--ink);font-variant-numeric:tabular-nums;grid-row:span 2}
-.headcount .lab{font-size:21px;font-weight:700;line-height:1.15}
-.headcount .sub{color:var(--muted);font-size:15px}
-.heads{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 0}
-.head{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:99px;font-size:14px;font-weight:600;
-  background:var(--night-2);border:1px solid var(--line)}
-.head.sure{background:rgba(110,231,183,.13);border-color:rgba(110,231,183,.38)}
-.head.maybe{border-style:dashed;border-color:rgba(255,158,181,.55);color:#FFD3DD}
-.head.guest{font-weight:500}
+/* ---------- tab bar ---------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  padding:6px 8px max(12px,env(safe-area-inset-bottom));background:var(--night);border-top:1px solid var(--line)}
+.tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;text-decoration:none;color:var(--faint);
+  font-size:12px;font-weight:700}
+.tabbar a[aria-current="page"]{color:var(--fizz)}
+body.nonav .tabbar{display:none}
 
-/* ---------- rate call-to-action ---------- */
-.rate{margin:26px 0 0;display:grid;grid-template-columns:auto 1fr;gap:14px 16px;align-items:center;padding:16px 18px;
-  border-radius:var(--r-lg);background:linear-gradient(135deg,var(--night-3),var(--night-2));border:1px solid var(--line-2);box-shadow:var(--lift)}
-.rate b{display:block;font-size:19px;font-weight:800;font-variation-settings:"wdth" 85;line-height:1.15}
-.rate .rt span{display:block;color:var(--muted);font-size:14.5px;margin-top:3px}
-.rate > .btn{grid-column:1/-1}
-@media (min-width:520px){.rate{grid-template-columns:auto 1fr auto}.rate > .btn{grid-column:auto}}
-.rate.done{grid-template-columns:1fr auto}
-.rate.done > .btn{grid-column:auto}
-.minis{position:relative;width:44px;height:54px;margin:0 4px}
-.minis i{position:absolute;inset:0;border-radius:9px;border:1.5px solid var(--line-2);background:var(--night-4)}
-.minis i:nth-child(1){transform:rotate(-13deg) translateX(-5px);background:var(--night-3)}
-.minis i:nth-child(2){transform:rotate(9deg) translateX(5px)}
-.minis i:nth-child(3){background:var(--fizz);border-color:var(--fizz);transform:rotate(-2deg)}
+/* ---------- accueil ---------- */
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.5}
+.stars i.gold{width:3px;height:3px;background:var(--fizz);opacity:.6}
+.topline{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px}
+.invite{font-weight:700;font-size:15px;color:var(--muted)}
+.hello{display:flex;align-items:center;gap:10px;min-width:0;font-weight:800;font-size:18px}
+.pill-date{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border-radius:99px;flex:none;white-space:nowrap;
+  background:rgba(255,203,71,.12);border:1px solid rgba(255,203,71,.3);color:var(--fizz);font-weight:700;font-size:14px}
+.hero-t{position:relative;margin:0;font-size:54px;line-height:.9;font-weight:800;font-variation-settings:"wdth" 76;letter-spacing:-.015em}
+.hero-t span{display:block;color:var(--fizz)}
+.hero-p{margin:14px 0 0;color:var(--muted)}
+.rsvp{position:relative;display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:24px;background:var(--night-2);border:1px solid var(--line-2);box-shadow:var(--lift)}
+.rsvp h2{margin:0;font-size:30px;line-height:1.05;font-weight:800;font-variation-settings:"wdth" 82}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fine{margin:0;color:var(--faint);font-size:13.5px;text-align:center}
+.links{display:flex;flex-direction:column;gap:10px}
+.linkrow{display:flex;align-items:center;gap:12px;min-height:64px;padding:12px 14px;border-radius:18px;border:1px solid var(--line);color:var(--ink);text-decoration:none}
+.linkrow:hover{color:var(--ink);background:rgba(244,240,255,.03)}
+.linkrow .tx{flex:1;min-width:0}
+.linkrow b{display:block;font-size:16px;line-height:1.2}
+.linkrow .tx span{display:block;color:var(--muted);font-size:14px}
+.linkrow > svg{flex:none;color:var(--faint)}
+.ibox{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:12px;background:var(--night-3);color:var(--fizz)}
+.mebar{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(110,231,183,.1);border:1px solid rgba(110,231,183,.32)}
+.mebar.no{background:var(--night-2);border-color:var(--line)}
+.mebar .ic{display:grid;place-items:center;width:32px;height:32px;flex:none;border-radius:50%;background:var(--sure);color:var(--sure-ink)}
+.mebar.no .ic{background:var(--night-3);color:var(--muted)}
+.mebar .tx{flex:1;min-width:0}
+.mebar b{display:block;font-size:15.5px;line-height:1.2}
+.mebar .tx span{display:block;color:var(--muted);font-size:14px}
+.next{display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:24px;background:var(--fizz);color:var(--fizz-ink)}
+.next h2{margin:-6px 0 0;font-size:28px;line-height:1.05;font-weight:800;font-variation-settings:"wdth" 82}
+.next p{margin:0;font-size:15.5px}
+.next .bar{background:rgba(42,30,0,.16)} .next .bar i{background:var(--fizz-ink)}
+.next .prog{display:block;margin-top:6px;font-size:13.5px;font-weight:700}
+.next .btn{min-height:52px;font-size:16.5px}
+.decided{display:flex;align-items:center;gap:8px;margin:10px 0 0;color:var(--sure);font-weight:700}
+.bigrow{display:flex;align-items:flex-end;gap:14px;margin-top:12px}
+.bigrow .big{font-size:64px;line-height:.8;font-weight:800;font-variation-settings:"wdth" 75;font-variant-numeric:tabular-nums}
+.bigrow b{display:block;font-size:17px;line-height:1.15}
+.bigrow .sub{color:var(--muted);font-size:14px}
+.prefline{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14.5px;font-weight:700}
+.prefline span{display:inline-flex;align-items:center;gap:6px}
+.prefline .m{font-weight:600;text-align:center}
+.rows{display:flex;flex-direction:column;gap:10px}
+.inforow{display:flex;align-items:center;gap:10px;font-size:14.5px}
+.inforow > svg{flex:none;color:var(--fizz)}
+.inforow.res > svg{color:var(--sure)}
+ol.peek{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.peek li{display:flex;align-items:center;gap:12px;font-size:15.5px}
+.num{display:grid;place-items:center;width:26px;height:26px;flex:none;border-radius:50%;background:var(--night-3);font-size:13px;font-weight:800}
 
-/* ---------- status ---------- */
-.status{margin:16px 0 0;padding:18px 20px;border-radius:var(--r-lg);background:var(--fizz);color:var(--fizz-ink)}
-.status h2{margin:0;font-size:22px;line-height:1.15;font-weight:800;font-variation-settings:"wdth" 85}
-.status p{margin:6px 0 0;font-size:15.5px}
-.status .next{margin-top:12px;padding-top:12px;border-top:1px solid rgba(42,30,0,.18);display:flex;gap:10px;align-items:baseline}
-.status .next b{white-space:nowrap}
-.status .toplab{margin:12px 0 0;padding-top:12px;border-top:1px solid rgba(42,30,0,.18);font-weight:800;font-size:15px}
-ol.top{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;counter-reset:r}
-ol.top li{display:flex;align-items:baseline;gap:10px;counter-increment:r;font-size:15.5px}
-ol.top li::before{content:counter(r);flex:none;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;
-  font-size:13px;font-weight:800;background:rgba(42,30,0,.12)}
-ol.top .tt{flex:1;min-width:0;font-weight:600}
-ol.top .sc{font-weight:800;font-variant-numeric:tabular-nums}
+/* ---------- pistes ---------- */
+.tabs2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border-radius:99px;background:var(--night-2)}
+.tabs2 button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:0;border-radius:99px;background:none;
+  color:var(--muted);font-weight:800;font-size:15.5px}
+.tabs2 button[aria-selected="true"]{background:var(--ink);color:var(--night)}
+.tabs2 .n{font-weight:600;opacity:.8}
+.scen h2{margin:0;font-size:24px;line-height:1.1;font-weight:800;font-variation-settings:"wdth" 84}
+.scen-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.scen .who{margin:4px 0 0;color:var(--muted);font-size:14.5px}
+.facts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.facts li{display:flex;gap:9px;font-size:14px;line-height:1.35}
+.facts li::before{content:"";flex:none;width:6px;height:6px;margin-top:7px;border-radius:50%;background:var(--fizz)}
+.sbar{margin-top:14px}
+.sbar span{display:block;margin-top:6px;color:var(--muted);font-size:13.5px}
+.scen.chosen{border-color:var(--fizz);box-shadow:0 0 0 1px var(--fizz) inset}
+.scen.dropped{opacity:.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border-radius:99px;border:1.5px solid var(--line-2);background:none;color:var(--ink);font-weight:700;font-size:14.5px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--night)}
+.plist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.pc{position:relative;padding:14px 14px 12px;border-radius:18px;background:var(--night-2);border:1px solid var(--line)}
+.pc.favori{border-color:rgba(255,203,71,.55)}
+.pc.reserve{border-color:rgba(110,231,183,.55)}
+.pc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pc-l{min-width:0}
+.flag{display:inline-flex;align-items:center;gap:5px;margin-bottom:4px;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.flag.fav{color:var(--fizz)} .flag.res{color:var(--sure)}
+.pc-t{display:block;color:var(--ink);font-weight:800;font-size:17px;line-height:1.2;text-decoration:none}
+.pc-t:hover{color:var(--ink);text-decoration:underline}
+/* The whole card opens the detail; the vote row sits above that layer. */
+.pc-t::after{content:"";position:absolute;inset:0;border-radius:18px}
+.pc-t:focus-visible{outline:none}
+.pc-t:focus-visible::after{outline:3px solid var(--fizz);outline-offset:2px}
+.pc-m{display:block;margin-top:3px;color:var(--muted);font-size:14px}
+.pc-p{flex:none;max-width:42%;text-align:right}
+.pc-p b{display:block;color:var(--fizz);font-size:20px;line-height:1.1;font-weight:800;font-variant-numeric:tabular-nums}
+.pc-p span{display:block;color:var(--muted);font-size:12.5px}
+.pc-p.raw b{font-size:14.5px;line-height:1.25;font-weight:700}
+.pc-v{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:10px;
+  border-top:1px solid rgba(244,240,255,.1)}
+.tally{color:var(--faint);font-size:13.5px;font-variant-numeric:tabular-nums}
+.tv{display:flex;flex-wrap:wrap;gap:2px 10px}
+.tv .t{display:inline-flex;align-items:center;gap:3px}
+.tv .yes svg{color:var(--sure)} .tv .love svg{color:var(--love)} .tv .no svg{color:var(--no)}
+.tv .pos{color:var(--sure);font-weight:800} .tv .neg{color:var(--no);font-weight:800}
+.vbtns{display:flex;gap:6px;flex:none}
+.vb{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line-2);background:none}
+.vb[data-v="-1"]{color:var(--no)} .vb[data-v="1"]{color:var(--sure)} .vb[data-v="2"]{color:var(--love)}
+.vb[aria-pressed="true"][data-v="-1"]{background:var(--no);border-color:var(--no);color:#2B0A04}
+.vb[aria-pressed="true"][data-v="1"]{background:var(--sure);border-color:var(--sure);color:var(--sure-ink)}
+.vb[aria-pressed="true"][data-v="2"]{background:var(--love);border-color:var(--love);color:#3A0614}
+details.drop{border-top:1px solid var(--line);padding-top:4px}
+details.drop summary{display:flex;align-items:center;gap:8px;min-height:48px;color:var(--muted);font-weight:700;font-size:15px;cursor:pointer;list-style:none}
+details.drop summary::-webkit-details-marker{display:none}
+details.drop[open] summary svg{transform:rotate(180deg)}
+.gone{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column}
+.gone a{display:flex;flex-direction:column;justify-content:center;min-height:48px;padding:6px 0;color:var(--muted);text-decoration:none}
+.gone a b{color:var(--ink);font-weight:700}
+.gone a:hover b{text-decoration:underline}
+.gone a span{color:var(--faint);font-size:14px}
+.tools{display:flex;flex-direction:column;gap:2px;padding-top:4px;border-top:1px solid var(--line)}
+.tools .eyebrow{margin-top:10px;color:var(--muted)}
+.toolrow{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px;padding:0;border:0;background:none;color:var(--ink);
+  font-weight:700;font-size:15.5px;text-align:left}
+.toolrow svg{flex:none;color:var(--faint)}
 
-/* ---------- nav ---------- */
-nav.tabs{position:sticky;top:0;z-index:5;margin:24px calc(var(--pad) * -1) 0;padding:10px var(--pad);
-  background:rgba(27,22,64,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-nav.tabs ul{list-style:none;margin:0;padding:0;display:flex;gap:6px}
-nav.tabs a{display:flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border-radius:99px;text-decoration:none;color:var(--muted);font-weight:600;font-size:15px}
-nav.tabs a.on{background:var(--night-3);color:var(--ink)}
-nav.tabs .n{font-size:12.5px;min-width:20px;height:20px;border-radius:10px;background:var(--line);display:inline-grid;place-items:center;padding:0 6px;color:var(--ink)}
+/* ---------- piste detail ---------- */
+.back{align-self:flex-start;font-size:15px}
+.dt h1{margin:12px 0 0;font-size:30px;line-height:1.05;font-weight:800;font-variation-settings:"wdth" 82}
+.dprice{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px;margin-top:10px}
+.dprice b{font-size:34px;line-height:1;font-weight:800;color:var(--fizz);font-variant-numeric:tabular-nums}
+.dprice span{color:var(--muted);font-size:15px;font-weight:700}
+.dprice.raw b{font-size:22px;line-height:1.2}
+.dmeta{margin:8px 0 0;color:var(--muted);font-size:15px}
+.dnote{margin:8px 0 0;font-size:15px}
+.scpill{height:26px;padding:0 10px;border-radius:99px;background:rgba(244,240,255,.12);font-size:13.5px;line-height:26px;font-weight:800;font-variant-numeric:tabular-nums}
+.vtiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;text-align:center}
+.vtiles div{padding:10px 0;border-radius:12px;background:var(--night)}
+.vtiles b{display:block;font-weight:800;font-size:20px}
+.vtiles span{color:var(--muted);font-size:13px}
+.c-no{color:var(--no)} .c-yes{color:var(--sure)} .c-love{color:var(--love)}
+.vnote{margin:10px 0 0;color:var(--faint);font-size:13.5px}
+.vlist{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14.5px}
+.vlist b{margin-right:4px}
+.orga-box{padding:16px;border-radius:18px;border:1.5px solid rgba(255,203,71,.45)}
+.orga-box h2{margin:0;color:var(--fizz);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.orga-box fieldset{margin-top:12px}
+.orga-box .btn{margin-top:14px}
+.stgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.st{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:12px;border:1.5px solid var(--line-2);
+  font-weight:700;font-size:15px;cursor:pointer}
+.st:has(input:checked){border-color:var(--fizz);background:rgba(255,203,71,.14);color:var(--fizz);font-weight:800}
+.orga-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}
 
-section{padding-top:38px;scroll-margin-top:62px}
-section > h2{margin:0;font-size:32px;font-weight:800;font-variation-settings:"wdth" 80;line-height:1}
-section > .lede{margin:8px 0 0;color:var(--muted)}
+/* ---------- qui ---------- */
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{padding:12px;border-radius:16px;background:var(--night-2);border:1px solid var(--line)}
+.tile.sure{background:rgba(110,231,183,.1);border-color:rgba(110,231,183,.3)}
+.tile.maybe{border:1px dashed rgba(255,158,181,.5)}
+.tile .n{display:block;font-size:34px;line-height:1;font-weight:800;font-variation-settings:"wdth" 78;font-variant-numeric:tabular-nums}
+.tile .l{display:block;margin-top:4px;color:var(--muted);font-size:13.5px;font-weight:700;line-height:1.2}
+.tile.sure .l{color:var(--sure)} .tile.maybe .l{color:var(--maybe)}
+.panel.pref{padding:16px;border-radius:18px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;background:rgba(244,240,255,.35)}
+.legend i.maison{background:var(--fizz)} .legend i.paris{background:var(--paris)}
+.glab{margin:0;color:var(--muted);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.people{list-style:none;margin:6px 0 0;padding:0}
+.prow{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;width:100%;min-height:64px;padding:8px 0;border:0;background:none;
+  color:var(--ink);text-align:left}
+button.prow:hover .pr-e{text-decoration:underline}
+.pr-b{min-width:0}
+.pr-n{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-weight:800;font-size:17px;line-height:1.2}
+.you{height:20px;padding:0 7px;border-radius:6px;background:rgba(255,203,71,.16);color:var(--fizz);font-size:12px;line-height:20px;font-weight:800}
+.stay{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:6px;font-size:12px;line-height:20px;font-weight:800;
+  background:rgba(255,122,156,.16);color:var(--maybe)}
+.stay.non{background:rgba(244,240,255,.1);color:var(--muted)}
+.stay.unk{background:none;border:1px dashed rgba(244,240,255,.3);color:var(--muted)}
+.pr-m{display:block;margin-top:2px;color:var(--muted);font-size:14px}
+.pr-note{display:block;margin-top:2px;color:var(--faint);font-size:14px;font-style:italic}
+.pr-e{color:var(--fizz);font-weight:700;font-size:14.5px}
+.invite-box{padding:18px;border-radius:20px;border:1.5px dashed var(--line-2);text-align:center}
+.invite-box h2{margin:0;font-size:19px;font-weight:800}
+.invite-box p{margin:4px 0 0;color:var(--muted);font-size:14.5px}
+.invite-box .row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.invite-box .btn{font-size:15.5px;padding:0 18px}
 
-/* ---------- people ---------- */
-.people{list-style:none;margin:10px 0 0;padding:0}
-.person{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
-.person:last-child{border-bottom:0}
-.av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;color:var(--night);flex:none}
-.person .nm{font-weight:700;font-size:17px;line-height:1.2}
-.person .nm small{font-weight:600;color:var(--fizz);font-size:13px;margin-left:6px}
-.person .meta{color:var(--muted);font-size:14px;margin-top:2px}
-.person .note{color:var(--faint);font-size:14px;font-style:italic;margin-top:2px}
-.pill{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:99px;font-size:13px;font-weight:700;white-space:nowrap}
-.pill.sure{background:rgba(110,231,183,.16);color:var(--sure)}
-.pill.maybe{background:rgba(255,158,181,.14);color:var(--maybe)}
-.group-lab{margin:22px 0 0;color:var(--muted);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-
-.empty{margin:18px 0 0;padding:22px;border:1.5px dashed var(--line-2);border-radius:var(--r-lg);color:var(--muted);text-align:center}
-.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:4px}
-
-/* ---------- buttons ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px;border-radius:99px;border:0;
-  font-weight:700;font-size:16px;cursor:pointer;text-decoration:none;white-space:nowrap}
-.btn.primary{background:var(--fizz);color:var(--fizz-ink)}
-.btn.ghost{background:var(--night-2);color:var(--ink);border:1px solid var(--line-2)}
-.btn.danger{background:none;color:var(--maybe);padding:0 8px}
-.btn.small{height:40px;padding:0 16px;font-size:15px}
-.btn:active{transform:scale(.98)}
-.btn[disabled]{opacity:.4;cursor:default}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.mt{margin-top:16px}
-
-.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:8;
-  height:56px;padding:0 28px;font-size:17px;box-shadow:0 12px 32px rgba(10,6,40,.65)}
-.fab:active{transform:translateX(-50%) scale(.98)}
-
-/* ---------- scenarios ---------- */
-.scen{margin:18px 0 0;border-radius:var(--r-xl);background:var(--night-2);border:1px solid var(--line);overflow:hidden;box-shadow:var(--lift)}
-.scen.chosen{border-color:var(--fizz);box-shadow:0 0 0 1px var(--fizz) inset,var(--lift)}
-.scen.dropped{opacity:.55}
-.scen-head{padding:20px 20px 18px;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
-.scen-head .t{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.scen h3{margin:0;font-size:25px;line-height:1.1;font-weight:800;font-variation-settings:"wdth" 84}
-.scen .who{margin:6px 0 0;color:var(--muted);font-size:15px}
-.scen ul.facts{margin:12px 0 0;padding:0 0 0 18px;font-size:15px}
-.scen ul.facts li{margin:3px 0}
-.votes{margin:16px 0 0}
-.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--fizz);border-radius:4px;transition:width .4s}
-.votes .vl{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--muted);margin-top:8px}
-.badge{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:99px;background:var(--fizz);color:var(--fizz-ink);font-size:13px;font-weight:800;white-space:nowrap}
-.scen-body{border-top:1px solid var(--line);padding:4px 14px 18px}
-.kind{margin:18px 6px 0;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.opts{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px}
-.opt{padding:14px 15px;border-radius:var(--r-md);background:rgba(12,9,36,.5);border:1px solid var(--line)}
-.opt.favori{border-color:rgba(255,203,71,.55)}
-.opt.reserve{border-color:var(--sure);background:rgba(110,231,183,.07)}
-.opt.ecarte{opacity:.6}
-.opt.ecarte .ot{text-decoration:line-through}
-.ohead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.opt .ot{font-weight:700;font-size:16.5px;line-height:1.25}
-.sc{flex:none;min-width:40px;height:26px;padding:0 9px;border-radius:99px;display:inline-grid;place-items:center;
-  font-size:13.5px;font-weight:800;background:var(--line);font-variant-numeric:tabular-nums}
-.sc.pos{background:rgba(110,231,183,.16);color:var(--sure)}
-.sc.neg{background:rgba(255,149,128,.15);color:var(--no)}
-dl.info{margin:10px 0 0;display:grid;gap:4px}
-dl.info div{display:grid;grid-template-columns:80px 1fr;gap:10px;font-size:14px}
-dl.info dt{color:var(--faint);font-weight:600}
-dl.info dd{margin:0}
-dl.info dd.na{color:var(--faint);font-style:italic}
-.opt .onote{color:var(--muted);font-size:14px;margin-top:8px}
-.ovote{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.tally{color:var(--muted);font-size:13.5px;font-variant-numeric:tabular-nums}
-.vbtns{display:flex;gap:6px}
-.vb{width:46px;height:40px;border-radius:99px;border:1.5px solid var(--line-2);background:none;color:var(--muted);
-  font-size:16px;font-weight:800;cursor:pointer;display:grid;place-items:center}
-.vb.on[data-v="-1"]{background:var(--no);border-color:var(--no);color:#2B0A04}
-.vb.on[data-v="1"]{background:var(--sure);border-color:var(--sure);color:#06291C}
-.vb.on[data-v="2"]{background:var(--love);border-color:var(--love);color:#3A0614}
-.opt .oa{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}
-.opt select{background:var(--night-2);border:1px solid var(--line-2);border-radius:99px;height:40px;padding:0 12px;font-size:14px;font-weight:600}
-.opt a{font-size:14px;font-weight:600}
-.none{color:var(--faint);font-size:14px;margin:6px 6px 0}
-details.drop{margin:18px 6px 0}
-details.drop summary{cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;min-height:32px}
-details.drop .opts{margin-top:8px}
-
-/* ---------- todos ---------- */
-.todos{list-style:none;margin:16px 0 0;padding:0}
-.todo{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.todo input[type=checkbox]{appearance:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--muted);margin:0;cursor:pointer;display:grid;place-items:center}
-.todo input[type=checkbox]:checked{background:var(--sure);border-color:var(--sure)}
-.todo input[type=checkbox]:checked::after{content:"";width:7px;height:12px;border:solid var(--night);border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
-.todo.done .tt{color:var(--faint);text-decoration:line-through}
-.todo .tw{color:var(--muted);font-size:13.5px}
-.x{background:none;border:0;color:var(--faint);font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;line-height:1;flex:none}
-.addline{display:flex;gap:8px;margin-top:14px}
-.addline input{flex:1;min-width:0}
+/* ---------- à faire ---------- */
+.tprog-l{display:flex;justify-content:space-between;font-size:14px;font-weight:700}
+.tprog .bar{margin-top:6px} .tprog .bar i{background:var(--sure)}
+.tlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ti{display:grid;grid-template-columns:28px 1fr;gap:14px;align-items:start;padding:14px;border-radius:16px;background:var(--night-2);border:1px solid var(--line)}
+.ti.orga{grid-template-columns:28px 1fr 44px}
+.ti.now{background:var(--night-3);border-color:rgba(255,203,71,.55)}
+.ti input{width:26px;height:26px;margin:0;accent-color:var(--sure);cursor:pointer}
+.ti label{cursor:pointer;min-height:26px}
+.nowtag{display:inline-block;margin-bottom:4px;padding:0 8px;height:20px;border-radius:6px;background:var(--fizz);color:var(--fizz-ink);font-size:12px;line-height:20px;font-weight:800}
+.ti .tt{display:block;font-size:16px;font-weight:700;line-height:1.3}
+.ti .tw{display:block;margin-top:3px;color:var(--muted);font-size:14px}
+.ti.done .tt{color:var(--faint);text-decoration:line-through}
+.xsm{display:grid;place-items:center;width:44px;height:44px;margin:-9px -9px -9px 0;border:0;border-radius:50%;background:none;color:var(--faint)}
+.addline{display:flex;gap:8px;margin:0}
+.addline input{flex:1;min-width:0;height:48px}
+.rbtn{display:grid;place-items:center;width:48px;height:48px;flex:none;border:0;border-radius:50%;background:var(--night-3);color:var(--ink)}
 
 /* ---------- forms ---------- */
-input[type=text],input[type=url],input[type=number],textarea,select.f{width:100%;background:var(--night);border:1.5px solid var(--line-2);border-radius:var(--r-sm);
-  padding:12px 14px;font-size:16px;outline:none}
-input:focus,textarea:focus,select.f:focus{border-color:var(--fizz)}
-textarea{resize:vertical;min-height:80px}
-label.l{display:block;font-weight:700;font-size:15px;margin:16px 0 6px}
-label.l span{font-weight:500;color:var(--muted)}
-.seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg input{position:absolute;opacity:0;pointer-events:none}
-.seg label{flex:1;min-width:max-content;display:flex;align-items:center;justify-content:center;height:44px;padding:0 14px;border-radius:99px;
-  border:1.5px solid var(--line-2);font-weight:600;cursor:pointer;font-size:15px}
-.seg input:checked + label{background:var(--ink);color:var(--night);border-color:var(--ink)}
-.seg input:focus-visible + label{outline:3px solid var(--fizz);outline-offset:2px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
-.hint{color:var(--muted);font-size:13.5px;margin-top:6px}
+input[type=text],input[type=url],textarea{width:100%;height:50px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line-2);
+  background:var(--night);color:var(--ink);font-size:16px;outline:none}
+textarea{height:auto;min-height:130px;padding:12px 14px;resize:vertical;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+input:focus,textarea:focus{border-color:var(--fizz)}
+fieldset{margin:0;padding:0;border:0;min-width:0}
+legend{padding:0;margin-bottom:8px;font-weight:700;font-size:15px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld > label{font-weight:700;font-size:15px}
+.fld label span,legend span{font-weight:500;color:var(--muted)}
+.hint{margin:0;color:var(--muted);font-size:13.5px}
+.err-msg{margin:0;color:var(--maybe);font-size:14px}
+.err-msg:empty{display:none}
+.err-msg .lnk{min-height:32px;margin-left:6px;font-size:14px;text-decoration:underline}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.addrow{display:flex;gap:8px}
+.addrow input{flex:1;min-width:0;height:48px}
+.gchips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.gchips:empty{display:none}
+.gchips li{display:inline-flex;align-items:center;height:36px;padding-left:12px;border-radius:99px;background:var(--night-3);font-weight:700;font-size:14.5px}
+.gchips button{display:grid;place-items:center;width:40px;height:44px;margin:-4px 0;border:0;border-radius:50%;background:none;color:var(--muted)}
+/* Visually hidden radio, label carries the look; :has() mirrors its state. */
+.rad{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+label:has(.rad:focus-visible){outline:3px solid var(--fizz);outline-offset:2px}
+.seg2{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;padding:4px;border-radius:99px;background:var(--night)}
+.seg2 label{position:relative;display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 6px;border-radius:99px;
+  color:var(--muted);font-weight:700;font-size:15px;line-height:1.1;text-align:center;cursor:pointer}
+.seg2 label:has(.rad:checked){background:var(--ink);color:var(--night)}
+.prefcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pcard{position:relative;display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:16px;border:2px solid rgba(244,240,255,.16);cursor:pointer}
+.pcard .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted)}
+.pcard .tick{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;border:2px solid rgba(244,240,255,.3)}
+.pcard .tick svg{display:none}
+.pcard b{margin-top:4px;font-size:17px}
+.pcard .d{color:var(--muted);font-size:13.5px;line-height:1.3}
+.pcard:has(.rad:checked){border-color:var(--fizz);background:rgba(255,203,71,.08)}
+.pcard:has(.rad:checked) .top{color:var(--fizz)}
+.pcard:has(.rad:checked) .tick{width:22px;height:22px;border:0;background:var(--fizz);color:var(--fizz-ink)}
+.pcard:has(.rad:checked) .tick svg{display:block}
+.pill2{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 10px;border-radius:99px;
+  border:1.5px solid var(--line-2);font-weight:700;font-size:15px;text-align:center;cursor:pointer}
+.pill2.dash{margin-top:8px;border-style:dashed;color:var(--muted)}
+.pill2:has(.rad:checked){border-style:solid;border-color:var(--fizz);background:rgba(255,203,71,.08);color:var(--fizz)}
 
-dialog{border:0;padding:0;background:var(--night-2);color:var(--ink);width:min(560px,100%);max-width:100%;max-height:92vh;border-radius:24px 24px 0 0;
-  margin:auto auto 0;box-shadow:0 -10px 50px rgba(0,0,0,.5)}
-@media (min-width:640px){dialog{border-radius:24px;margin:auto}}
-dialog::backdrop{background:rgba(8,5,30,.7)}
+/* ---------- dialogs ---------- */
+dialog{border:0;padding:0;background:var(--night-2);color:var(--ink);width:100%;max-width:min(560px,100%);max-height:calc(100dvh - 34px);
+  border-radius:24px 24px 0 0;margin:auto auto 0;box-shadow:0 -10px 50px rgba(0,0,0,.5);overflow:hidden}
+dialog.tall{height:calc(100dvh - 34px)}
+@media (min-width:640px){dialog{border-radius:24px;margin:auto;max-height:92vh} dialog.tall{height:auto}}
+dialog::backdrop{background:rgba(8,5,30,.72)}
 dialog[open]{animation:sheet .22s ease-out}
 @keyframes sheet{from{transform:translateY(30px);opacity:0}}
-dialog form{padding:22px var(--pad) calc(22px + env(safe-area-inset-bottom));overflow:auto;max-height:92vh}
-dialog h2{margin:0;font-size:26px;font-weight:800;font-variation-settings:"wdth" 85;line-height:1.1}
-dialog .lede{margin:6px 0 0;color:var(--muted);font-size:15px}
-dialog .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:24px;flex-wrap:wrap}
-dialog .foot .row{margin-left:auto}
-.err-msg{color:var(--maybe);font-size:14px;margin-top:8px;min-height:1px}
+dialog form{display:flex;flex-direction:column;height:100%;max-height:inherit;margin:0}
+.sh-body{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:18px;padding:10px 20px 18px}
+.sh-foot{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.sh-foot.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grab{align-self:center;flex:none;width:40px;height:5px;border-radius:3px;background:rgba(244,240,255,.25)}
+.sh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sh-head h2,.ctitle{margin:0;font-size:28px;line-height:1.05;font-weight:800;font-variation-settings:"wdth" 82}
+.lede{margin:6px 0 0;color:var(--muted);font-size:15px}
+.xbtn{display:grid;place-items:center;width:44px;height:44px;flex:none;border:0;border-radius:50%;background:var(--night-3);color:var(--ink)}
+.code{margin:0;padding:12px;border-radius:10px;background:var(--night);font-size:12.5px;white-space:pre-wrap;word-break:break-all;color:var(--ink)}
 
 /* ---------- swipe deck ---------- */
-dialog.deck{width:100%;max-width:520px;height:100%;height:100dvh;max-height:100dvh;margin:0 auto;border-radius:0;background:var(--night);box-shadow:none}
-@media (min-width:640px){dialog.deck{height:min(800px,94vh);max-height:94vh;margin:auto;border-radius:28px;border:1px solid var(--line-2)}}
-.deck-in{display:flex;flex-direction:column;height:100%;padding:calc(10px + env(safe-area-inset-top)) var(--pad) calc(14px + env(safe-area-inset-bottom))}
-.deck-top{display:grid;grid-template-columns:44px 1fr 96px;gap:12px;align-items:center}
-.deck-top .btn{justify-self:end;padding:0 12px}
-.deck-prog{display:grid;gap:7px;font-size:13.5px;color:var(--muted);font-weight:600;text-align:center;font-variant-numeric:tabular-nums}
+dialog.deck{max-width:520px;height:100dvh;max-height:100dvh;margin:0 auto;border-radius:0;background:var(--night);box-shadow:none}
+@media (min-width:640px){dialog.deck{height:min(820px,94vh);max-height:94vh;margin:auto;border-radius:28px;border:1px solid var(--line-2)}}
+.deck-in{display:flex;flex-direction:column;height:100%;padding:calc(14px + env(safe-area-inset-top)) 20px calc(14px + env(safe-area-inset-bottom))}
+.deck-top{display:grid;grid-template-columns:44px 1fr 44px;gap:12px;align-items:center}
+.cbtn{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:var(--night-2);color:var(--ink)}
+.cbtn[disabled]{opacity:.4;cursor:default}
+.deck-prog{display:flex;flex-direction:column;gap:6px;text-align:center;font-size:14px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.deck-prog .bar{height:6px;border-radius:3px}
 .deck-body{flex:1;display:flex;flex-direction:column;min-height:0}
-.stack{position:relative;flex:1;min-height:360px;margin:12px 0 18px}
-.card{position:absolute;inset:0;display:flex;flex-direction:column;padding:22px 20px 18px;border-radius:var(--r-xl);
-  background:linear-gradient(165deg,var(--night-4) 0%,var(--night-2) 72%);border:1px solid var(--line-2);
+.stack{position:relative;flex:1;min-height:360px;margin:18px 0}
+.plate{position:absolute;inset:0;transform:translateY(16px) scale(.94);border-radius:26px;background:var(--night-2);border:1px solid var(--line);opacity:.7}
+.card{position:absolute;inset:0;display:flex;flex-direction:column;padding:20px;border-radius:26px;background:var(--night-3);border:1px solid var(--line-2);
   box-shadow:0 30px 60px -28px rgba(4,2,20,.95);touch-action:none;user-select:none;-webkit-user-select:none;
   cursor:grab;overflow:hidden;transition:transform .25s ease-out;will-change:transform}
 .card:active{cursor:grabbing}
-.card.next{transform:translateY(16px) scale(.94);opacity:.5;pointer-events:none}
-.card .tags{display:flex;flex-wrap:wrap;gap:6px}
-.tag{display:inline-flex;align-items:center;height:28px;padding:0 11px;border-radius:99px;background:rgba(255,255,255,.08);font-size:13.5px;font-weight:600}
-.tag.fav{background:rgba(255,203,71,.16);color:var(--fizz)}
-.card h3{margin:16px 0 0;font-size:clamp(26px,7.5vw,32px);line-height:1.05;font-weight:800;font-variation-settings:"wdth" 82}
-.card dl.info{margin-top:18px;gap:0}
-.card dl.info div{grid-template-columns:96px 1fr;font-size:15.5px;padding:10px 0;border-bottom:1px solid var(--line)}
-.card dl.info div:first-child{border-top:1px solid var(--line)}
-.cnote{margin:14px 0 0;color:var(--muted);font-size:15px}
-.cfoot{margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14.5px}
-.cfoot a{font-weight:700;padding:10px 0}
+.card h2{margin:16px 0 0;font-size:30px;line-height:1.05;font-weight:800;font-variation-settings:"wdth" 82}
+.cprice{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;margin-top:14px}
+.cprice b{font-size:44px;line-height:1;font-weight:800;font-variation-settings:"wdth" 80;color:var(--fizz);font-variant-numeric:tabular-nums}
+.cprice span{font-size:16px;font-weight:700;color:var(--muted)}
+.cprice.raw b{font-size:24px;line-height:1.15}
+.cprice.na b{font-size:16px;font-weight:600;font-style:italic;color:var(--faint)}
+.csub{margin-top:4px;color:var(--muted);font-size:14px}
+.crows{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column}
+.crows li{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:15.5px}
+.crows li:last-child{border-bottom:1px solid var(--line)}
+.crows svg{flex:none;color:var(--muted)}
+.crows .na{color:var(--faint);font-style:italic}
+.cnote{margin:12px 0 0;color:var(--muted);font-size:15px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.cfoot{margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cfoot a{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:700;font-size:15px;text-decoration:none}
 .was{color:var(--faint);font-size:13.5px}
 .stamp{position:absolute;top:70px;padding:6px 14px;border:3px solid;border-radius:12px;font-weight:800;font-size:26px;
   text-transform:uppercase;letter-spacing:.04em;pointer-events:none;font-variation-settings:"wdth" 85;background:rgba(27,22,64,.75)}
 .s-yes{left:16px;color:var(--sure);transform:rotate(-12deg);opacity:var(--o-yes,0)}
 .s-no{right:16px;color:var(--no);transform:rotate(12deg);opacity:var(--o-no,0)}
 .s-love{left:50%;top:auto;bottom:84px;transform:translateX(-50%) rotate(-4deg);color:var(--love);opacity:var(--o-love,0);white-space:nowrap}
-.acts{display:flex;justify-content:center;align-items:flex-end;gap:22px}
-.act{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;padding:0}
-.act span{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font-size:27px;border:2px solid;background:var(--night-2);transition:transform .15s}
+.acts{display:flex;justify-content:center;align-items:flex-end;gap:26px}
+.act{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--muted);font-size:13.5px;font-weight:700}
+.act span{display:grid;place-items:center;width:68px;height:68px;border-radius:50%;border:2px solid;background:var(--night-2);transition:transform .15s}
 .act:active span{transform:scale(.92)}
-.act.no span{color:var(--no);border-color:rgba(255,149,128,.55)}
-.act.yes span{color:var(--sure);border-color:rgba(110,231,183,.55)}
-.act.love span{width:56px;height:56px;font-size:23px;color:var(--love);border-color:rgba(255,122,156,.55)}
-.skip{display:block;margin:8px auto 0;background:none;border:0;color:var(--faint);font-weight:600;font-size:14px;cursor:pointer;padding:0 14px;min-height:44px}
+.act.no span{color:var(--no);border-color:rgba(255,149,128,.6)}
+.act.yes span{color:var(--sure);border-color:rgba(110,231,183,.6)}
+.act.love span{width:56px;height:56px;color:var(--love);border-color:rgba(255,122,156,.6)}
+.dfoot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.dfoot span{color:var(--faint);font-size:13.5px}
+.dfoot button{min-height:44px;padding:0 4px;border:0;background:none;color:var(--muted);font-weight:700;font-size:14.5px}
 .who-pick,.deck-end{margin:auto 0;padding:12px 0}
+.dh{margin:0;font-size:28px;line-height:1.05;font-weight:800;font-variation-settings:"wdth" 82}
 .who-list{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
-.who-btn{display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 18px 0 7px;border-radius:99px;border:1px solid var(--line-2);
-  background:var(--night-2);font-weight:700;font-size:16px;cursor:pointer}
-.who-btn .av{width:36px;height:36px;font-size:15px}
-.deck-end .party{font-size:56px;line-height:1}
-.deck-end h2{margin-top:12px}
-.deck-end .kind{margin:22px 0 0}
-.deck ol.top li::before{background:var(--night-3)}
-.cnote{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.who-btn{display:inline-flex;align-items:center;gap:10px;min-height:50px;padding:0 18px 0 7px;border-radius:99px;border:1px solid var(--line-2);
+  background:var(--night-2);font-weight:700;font-size:16px}
+.deck-end .party{color:var(--fizz)}
+.deck-end .dh{margin-top:12px}
+.deck-end .eyebrow{margin-top:22px;color:var(--muted)}
+.endbtns{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
 @media (max-height:700px){
-  .card{padding:18px 18px 14px}
-  .card h3{margin-top:12px;font-size:24px}
-  .card dl.info{margin-top:12px}
-  .card dl.info div{padding:7px 0;font-size:15px}
-  .cnote{font-size:14px;margin-top:10px;-webkit-line-clamp:4}
-  .stack{min-height:300px;margin:8px 0 12px}
-  .act span{width:56px;height:56px;font-size:23px}
-  .act.love span{width:48px;height:48px;font-size:20px}
+  .card{padding:16px}
+  .card h2{margin-top:12px;font-size:24px}
+  .cprice b{font-size:34px}
+  .crows{margin-top:10px}
+  .crows li{padding:7px 0;font-size:15px}
+  .cnote{font-size:14px;margin-top:8px;-webkit-line-clamp:3}
+  .stack{min-height:300px;margin:10px 0 14px}
+  .act span{width:56px;height:56px}
+  .act.love span{width:48px;height:48px}
 }
 
-.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-80px);z-index:20;background:var(--ink);color:var(--night);
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-90px);z-index:20;background:var(--ink);color:var(--night);
   padding:11px 18px;border-radius:99px;font-weight:700;font-size:15px;transition:transform .25s;max-width:90vw;text-align:center}
 .toast.show{transform:translate(-50%,0)}
-.banner{margin:16px 0 0;padding:12px 16px;border-radius:var(--r-md);background:rgba(255,158,181,.14);color:#FFD3DD;font-size:15px}
-
-details.imp{margin:44px 0 0;border-top:1px solid var(--line);padding-top:18px;color:var(--muted)}
-details.imp summary{cursor:pointer;font-weight:600;min-height:32px}
-details.imp pre{background:var(--night-2);padding:12px;border-radius:var(--r-sm);overflow:auto;font-size:12.5px;color:var(--ink)}
-footer{margin:34px 0 0;color:var(--faint);font-size:13.5px}
-
-.skeleton{color:var(--muted);padding:40px 0;text-align:center}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="hero">
-    <div class="topline">
-      <span id="whoami"></span>
-      <button class="sync" id="sync" type="button" aria-live="polite"><span class="dot"></span><span id="syncTxt">Chargement…</span></button>
-    </div>
-    <h1>Nouvel An<span class="yr">2026 → 2027</span></h1>
-    <p class="countdown" id="countdown"></p>
-
-    <div class="headcount" aria-live="polite">
-      <div class="big" id="bigCount">–</div>
-      <div class="lab" id="countLab">personnes sûres</div>
-      <div class="sub" id="countSub"></div>
-    </div>
-    <div class="heads" id="heads"></div>
-
-    <div id="rateBox"></div>
-
-    <div class="status" id="status"></div>
-    <div id="banner"></div>
-  </header>
-
-  <nav class="tabs" aria-label="Sections">
-    <ul>
-      <li><a href="#qui" data-tab="qui">Qui vient <span class="n" id="nQui">0</span></a></li>
-      <li><a href="#pistes" data-tab="pistes">Pistes <span class="n" id="nPistes">0</span></a></li>
-      <li><a href="#afaire" data-tab="afaire">À faire <span class="n" id="nTodo">0</span></a></li>
-    </ul>
-  </nav>
-
+<div class="app">
+  <div class="orgabar hidden" id="orgabar"><span><i data-ico="key" data-s="18"></i>Mode orga activé</span>
+    <button type="button" data-action="orga-off">Quitter</button></div>
+  <div id="banner"></div>
   <main>
-    <section id="qui">
-      <h2>Qui vient</h2>
-      <p class="lede">Inscris-toi avec les personnes que tu ramènes. Tu pourras modifier ta réponse à tout moment.</p>
-      <div id="peopleBox"><p class="skeleton">Chargement de la liste…</p></div>
-    </section>
-
-    <section id="pistes">
-      <h2>Les pistes</h2>
-      <p class="lede">Deux options sur la table. Sous chaque piste, les logements et soirées repérés, classés par score : ✓ +1, ♥ +2, ✕ −1.</p>
-      <div id="scenBox"></div>
-      <div class="row mt"><button class="btn ghost" type="button" data-action="add-opt">+ Ajouter un logement ou une soirée</button></div>
-    </section>
-
-    <section id="afaire">
-      <h2>À faire</h2>
-      <p class="lede">Ce qu'il reste à régler, dans l'ordre.</p>
-      <ul class="todos" id="todos"></ul>
+    <section class="view" id="v-accueil" aria-label="Accueil"><p class="skeleton">Chargement…</p></section>
+    <section class="view" id="v-pistes" aria-label="Pistes" hidden></section>
+    <section class="view" id="v-piste" aria-label="Détail d'une piste" hidden></section>
+    <section class="view" id="v-qui" aria-label="Qui vient" hidden></section>
+    <section class="view" id="v-afaire" aria-label="À faire" hidden>
+      <header class="vhead"><div><h1>À faire</h1><p>Ce qu'il reste à régler, dans l'ordre.</p></div></header>
+      <div class="vstack" id="afaireBox"></div>
       <form class="addline" id="todoForm" autocomplete="off">
-        <input type="text" id="todoInput" placeholder="Ajouter une tâche" aria-label="Nouvelle tâche" maxlength="140">
-        <button class="btn ghost small" type="submit">Ajouter</button>
+        <label for="todoInput" class="sr">Nouvelle tâche</label>
+        <input type="text" id="todoInput" placeholder="Ajouter une tâche" maxlength="140">
+        <button class="rbtn" type="submit" aria-label="Ajouter la tâche"><i data-ico="plus" data-w="2.4"></i></button>
       </form>
     </section>
-
-    <details class="imp" id="importBox">
-      <summary>Importer des recherches en lot</summary>
-      <p>Colle une liste au format JSON. Chaque élément devient une piste.</p>
-      <pre>[{"scenario":"paris","kind":"soiree","title":"Dîner + club","place":"Paris 11e","price":"85 €/pers","capacity":"places dispo","url":"https://…","note":"open bar après minuit"}]</pre>
-      <p>scenario : <b>maison</b> ou <b>paris</b> · kind : <b>logement</b>, <b>soiree</b> ou <b>autre</b></p>
-      <textarea id="importTxt" placeholder="Colle le JSON ici"></textarea>
-      <div class="row mt"><button class="btn ghost small" type="button" data-action="import">Importer</button><span class="err-msg" id="importErr"></span></div>
-    </details>
-
-    <footer>Lien à partager tel quel dans le groupe. Tout le monde voit et modifie la même liste.</footer>
   </main>
+  <footer class="foot">
+    <button class="sync" id="sync" type="button" aria-live="polite"><span class="dot"></span><span id="syncTxt">Chargement…</span></button>
+    <button class="lnk m" id="orgaToggle" type="button" data-action="orga-toggle">Mode orga</button>
+  </footer>
 </div>
 
-<button class="btn primary fab" type="button" id="fab" data-action="rsvp">Je viens</button>
+<nav class="tabbar" aria-label="Navigation principale">
+  <a href="#accueil" data-tab="accueil"><i data-ico="home" data-s="24" data-w="2"></i>Accueil</a>
+  <a href="#pistes" data-tab="pistes"><i data-ico="cards" data-s="24" data-w="2"></i>Pistes</a>
+  <a href="#qui" data-tab="qui"><i data-ico="people" data-s="24" data-w="2"></i>Qui vient</a>
+  <a href="#afaire" data-tab="afaire"><i data-ico="todo" data-s="24" data-w="2"></i>À faire</a>
+</nav>
 <div class="toast" id="toast" role="status"></div>
 
 <!-- RSVP -->
-<dialog id="dlgPerson">
-  <form method="dialog" id="personForm" autocomplete="off">
-    <h2 id="pTitle">Je m'inscris</h2>
-    <p class="lede" id="pLede">Une inscription par personne qui organise sa venue, avec ses +1.</p>
-    <label class="l" for="pName">Ton prénom</label>
-    <input type="text" id="pName" maxlength="40" required>
-    <label class="l" for="pGuests">Tu viens avec <span>(facultatif)</span></label>
-    <input type="text" id="pGuests" maxlength="160" placeholder="Prénoms séparés par des virgules">
-    <p class="hint">Ex. : Léa, Tom. Chacun compte dans le total.</p>
-    <label class="l">C'est…</label>
-    <div class="seg">
-      <input type="radio" name="pStatus" id="st1" value="sur" checked><label for="st1">Sûr</label>
-      <input type="radio" name="pStatus" id="st2" value="probable"><label for="st2">Probable</label>
-    </div>
-    <label class="l">Tu préfères</label>
-    <div class="seg">
-      <input type="radio" name="pPref" id="pr1" value="maison"><label for="pr1">🏡 Maison</label>
-      <input type="radio" name="pPref" id="pr2" value="paris"><label for="pr2">🌃 Paris</label>
-      <input type="radio" name="pPref" id="pr3" value="egal" checked><label for="pr3">Les deux</label>
-    </div>
-    <label class="l" for="pNote">Un mot <span>(facultatif)</span></label>
-    <input type="text" id="pNote" maxlength="140" placeholder="Ex. : j'arrive le 31 au soir seulement">
-    <p class="err-msg" id="pErr"></p>
-    <div class="foot">
-      <button class="btn danger hidden" type="button" id="pDelete">Retirer de la liste</button>
-      <div class="row">
-        <button class="btn ghost" type="button" data-close>Annuler</button>
-        <button class="btn primary" type="submit" id="pSubmit">M'inscrire</button>
+<dialog id="dlgPerson" class="tall" aria-labelledby="pTitle">
+  <form method="dialog" id="personForm" autocomplete="off" novalidate>
+    <div class="sh-body">
+      <div class="grab" aria-hidden="true"></div>
+      <div class="sh-head">
+        <div><h2 id="pTitle">Super, tu viens !</h2><p class="lede" id="pLede">Deux infos et c'est réglé.</p></div>
+        <button class="xbtn" type="button" data-close aria-label="Fermer"><i data-ico="x"></i></button>
       </div>
+      <div class="fld">
+        <label for="pName">Ton prénom</label>
+        <input type="text" id="pName" maxlength="40" placeholder="Ex. : Antoine" autocomplete="given-name">
+      </div>
+      <div class="fld" id="pGuestsBox">
+        <label for="pGuest">Tu viens avec quelqu'un ? <span>(facultatif)</span></label>
+        <div class="addrow">
+          <input type="text" id="pGuest" maxlength="40" placeholder="Prénom du +1">
+          <button class="btn line sm" type="button" id="pGuestAdd"><i data-ico="plus" data-s="18" data-w="2.4"></i>Ajouter</button>
+        </div>
+        <ul class="gchips" id="pGuestList" aria-label="Tes +1"></ul>
+        <p class="hint">Chaque +1 compte dans le total.</p>
+      </div>
+      <fieldset id="pStatusBox">
+        <legend id="pStatusLeg">Sûr ou probable ?</legend>
+        <div class="seg2">
+          <label><input class="rad" type="radio" name="pStatus" value="sur">Sûr</label>
+          <label><input class="rad" type="radio" name="pStatus" value="probable">Probable</label>
+          <label id="pNoOpt"><input class="rad" type="radio" name="pStatus" value="non">Je ne viens pas</label>
+        </div>
+      </fieldset>
+      <fieldset id="pPrefBox">
+        <legend>Tu préfères…</legend>
+        <div class="prefcards">
+          <label class="pcard"><input class="rad" type="radio" name="pPref" value="maison">
+            <span class="top"><i data-ico="house" data-s="26" data-w="2"></i><span class="tick"><i data-ico="check" data-s="14" data-w="3"></i></span></span>
+            <b>La maison</b><span class="d">2 nuits près de Saint-Nazaire · 145 à 180 €</span></label>
+          <label class="pcard"><input class="rad" type="radio" name="pPref" value="paris">
+            <span class="top"><i data-ico="city" data-s="26" data-w="2"></i><span class="tick"><i data-ico="check" data-s="14" data-w="3"></i></span></span>
+            <b>Paris</b><span class="d">1 nuit + soirée du 31 · 45 à 125 € + la soirée</span></label>
+        </div>
+        <label class="pill2 dash"><input class="rad" type="radio" name="pPref" value="egal">Les deux me vont</label>
+      </fieldset>
+      <fieldset id="pStayBox">
+        <legend id="pStayLeg"></legend>
+        <div class="two">
+          <label class="pill2"><input class="rad" type="radio" name="pStay" value="oui">Oui, jusqu'au 2</label>
+          <label class="pill2"><input class="rad" type="radio" name="pStay" value="non">Non, jusqu'au 1er</label>
+        </div>
+        <label class="pill2 dash"><input class="rad" type="radio" name="pStay" value="?">Je ne sais pas</label>
+      </fieldset>
+      <button class="lnk" type="button" id="pNoteBtn"><i data-ico="plus" data-s="18" data-w="2.4"></i>Ajouter un mot pour le groupe</button>
+      <div class="fld hidden" id="pNoteBox">
+        <label for="pNote">Un mot pour le groupe <span>(facultatif)</span></label>
+        <input type="text" id="pNote" maxlength="140" placeholder="Ex. : j'arrive le 31 au soir seulement">
+      </div>
+      <p class="err-msg" id="pErr" role="alert"></p>
+    </div>
+    <div class="sh-foot">
+      <button class="btn primary xl blk" type="submit" id="pSubmit">M'inscrire</button>
+      <button class="lnk pink hidden" type="button" id="pDelete">Retirer de la liste</button>
     </div>
   </form>
 </dialog>
 
-<!-- Option -->
-<dialog id="dlgOpt">
-  <form method="dialog" id="optForm" autocomplete="off">
-    <h2 id="oTitle">Ajouter une piste</h2>
-    <p class="lede">Un logement, une soirée, un resto… avec le lien pour que tout le monde puisse vérifier.</p>
-    <label class="l">Pour</label>
-    <div class="seg">
-      <input type="radio" name="oScen" id="os1" value="maison" checked><label for="os1">🏡 La maison</label>
-      <input type="radio" name="oScen" id="os2" value="paris"><label for="os2">🌃 Paris</label>
-    </div>
-    <label class="l">Type</label>
-    <div class="seg">
-      <input type="radio" name="oKind" id="ok1" value="logement" checked><label for="ok1">Logement</label>
-      <input type="radio" name="oKind" id="ok2" value="soiree"><label for="ok2">Soirée</label>
-      <input type="radio" name="oKind" id="ok3" value="autre"><label for="ok3">Autre</label>
-    </div>
-    <label class="l" for="oName">Nom</label>
-    <input type="text" id="oName" maxlength="90" required placeholder="Ex. : Longère 6 chambres, Guérande">
-    <label class="l" for="oUrl">Lien <span>(facultatif)</span></label>
-    <input type="url" id="oUrl" maxlength="500" placeholder="https://">
-    <div class="grid2">
-      <div><label class="l" for="oPrice">Prix</label><input type="text" id="oPrice" maxlength="40" placeholder="Ex. : 1 200 € / 2 nuits"></div>
-      <div><label class="l" for="oCap">Capacité</label><input type="text" id="oCap" maxlength="40" placeholder="Ex. : 14 couchages"></div>
-    </div>
-    <label class="l" for="oPlace">Lieu <span>(facultatif)</span></label>
-    <input type="text" id="oPlace" maxlength="60">
-    <label class="l" for="oNote">Remarque <span>(facultatif)</span></label>
-    <input type="text" id="oNote" maxlength="200" placeholder="Ex. : annulation gratuite jusqu'au 20/12">
-    <p class="err-msg" id="oErr"></p>
-    <div class="foot">
-      <button class="btn danger hidden" type="button" id="oDelete">Supprimer</button>
-      <div class="row">
-        <button class="btn ghost" type="button" data-close>Annuler</button>
-        <button class="btn primary" type="submit" id="oSubmit">Ajouter</button>
+<!-- Option (orga) -->
+<dialog id="dlgOpt" aria-labelledby="oTitle">
+  <form method="dialog" id="optForm" autocomplete="off" novalidate>
+    <div class="sh-body">
+      <div class="grab" aria-hidden="true"></div>
+      <div class="sh-head">
+        <div><h2 id="oTitle">Ajouter une piste</h2><p class="lede">Un logement, une soirée, un resto… avec le lien pour que tout le monde puisse vérifier.</p></div>
+        <button class="xbtn" type="button" data-close aria-label="Fermer"><i data-ico="x"></i></button>
       </div>
+      <fieldset>
+        <legend>Pour</legend>
+        <div class="seg2">
+          <label><input class="rad" type="radio" name="oScen" value="maison" checked>La maison</label>
+          <label><input class="rad" type="radio" name="oScen" value="paris">Paris</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Type</legend>
+        <div class="seg2">
+          <label><input class="rad" type="radio" name="oKind" value="logement" checked>Logement</label>
+          <label><input class="rad" type="radio" name="oKind" value="soiree">Soirée</label>
+          <label><input class="rad" type="radio" name="oKind" value="autre">Autre</label>
+        </div>
+      </fieldset>
+      <div class="fld"><label for="oName">Nom</label><input type="text" id="oName" maxlength="90" placeholder="Ex. : Longère 6 chambres, Guérande"></div>
+      <div class="fld"><label for="oUrl">Lien <span>(facultatif)</span></label><input type="url" id="oUrl" maxlength="500" placeholder="https://"></div>
+      <div class="grid2">
+        <div class="fld"><label for="oPrice">Prix</label><input type="text" id="oPrice" maxlength="40" placeholder="Ex. : 1 200 € / 2 nuits"></div>
+        <div class="fld"><label for="oCap">Capacité</label><input type="text" id="oCap" maxlength="40" placeholder="Ex. : 14 couchages"></div>
+      </div>
+      <p class="hint">Le prix par personne s'affiche en grand s'il est écrit dans le prix, par exemple « 2 340 € (≈146 €/pers à 16) ».</p>
+      <div class="fld"><label for="oPlace">Lieu <span>(facultatif)</span></label><input type="text" id="oPlace" maxlength="60"></div>
+      <div class="fld"><label for="oNote">Remarque <span>(facultatif)</span></label><input type="text" id="oNote" maxlength="200" placeholder="Ex. : annulation gratuite jusqu'au 20/12"></div>
+      <p class="err-msg" id="oErr" role="alert"></p>
     </div>
+    <div class="sh-foot"><button class="btn primary xl blk" type="submit" id="oSubmit">Ajouter</button></div>
+  </form>
+</dialog>
+
+<!-- Import (orga) -->
+<dialog id="dlgImport" aria-labelledby="iTitle">
+  <form method="dialog" autocomplete="off" novalidate>
+    <div class="sh-body">
+      <div class="grab" aria-hidden="true"></div>
+      <div class="sh-head">
+        <div><h2 id="iTitle">Importer des pistes en lot</h2><p class="lede">Colle une liste au format JSON. Chaque élément devient une piste.</p></div>
+        <button class="xbtn" type="button" data-close aria-label="Fermer"><i data-ico="x"></i></button>
+      </div>
+      <pre class="code">[{"scenario":"paris","kind":"soiree","title":"Dîner + club","place":"Paris 11e","price":"85 €/pers","capacity":"places dispo","url":"https://…","note":"open bar après minuit"}]</pre>
+      <p class="hint">scenario : <b>maison</b> ou <b>paris</b> · kind : <b>logement</b>, <b>soiree</b> ou <b>autre</b></p>
+      <div class="fld"><label for="importTxt">Le JSON</label><textarea id="importTxt" placeholder="Colle le JSON ici"></textarea></div>
+      <p class="err-msg" id="importErr" role="alert"></p>
+    </div>
+    <div class="sh-foot"><button class="btn primary xl blk" type="button" data-action="import">Importer</button></div>
   </form>
 </dialog>
 
 <!-- Confirm -->
-<dialog id="dlgConfirm">
+<dialog id="dlgConfirm" aria-labelledby="cTitle">
   <form method="dialog">
-    <h2 id="cTitle"></h2>
-    <p class="lede" id="cText"></p>
-    <div class="foot"><div class="row">
-      <button class="btn ghost" value="no">Annuler</button>
+    <div class="sh-body">
+      <div class="grab" aria-hidden="true"></div>
+      <div><h2 class="ctitle" id="cTitle"></h2><p class="lede" id="cText"></p></div>
+    </div>
+    <div class="sh-foot two">
+      <button class="btn line" value="no">Annuler</button>
       <button class="btn primary" value="yes" id="cYes">Confirmer</button>
-    </div></div>
+    </div>
   </form>
 </dialog>
 
@@ -472,9 +627,9 @@ footer{margin:34px 0 0;color:var(--faint);font-size:13.5px}
 <dialog id="dlgDeck" class="deck" aria-label="Noter les pistes">
   <div class="deck-in">
     <div class="deck-top">
-      <button class="x" type="button" data-close aria-label="Fermer">×</button>
+      <button class="cbtn" type="button" data-close aria-label="Fermer"><i data-ico="x"></i></button>
       <div class="deck-prog"><span id="dkCount"></span><div class="bar"><i id="dkBar"></i></div></div>
-      <button class="btn ghost small" type="button" id="dkUndo">↺ Retour</button>
+      <button class="cbtn" type="button" id="dkUndo" aria-label="Revenir à la carte précédente"><i data-ico="undo"></i></button>
     </div>
     <div class="deck-body" id="dkBody"></div>
   </div>
@@ -488,6 +643,10 @@ const BLOB_ID = "890612cf8f6f2575b11e"; // rempli après création de la base
 const API = "https://api.npoint.io";
 const PARTY = new Date("2026-12-31T20:00:00+01:00");
 const POLL_MS = 20000;
+// The birthday is a fixed fact of this party, not something guests edit:
+// it lives here, not in the npoint document, so no write can change it and
+// older documents need no migration.
+const BIRTHDAY = { name:"Clémiche", label:"2 janvier", date:new Date("2027-01-02T00:00:00+01:00") };
 
 const SEED = {
   v:1, updatedAt:0, decision:null,
@@ -520,9 +679,53 @@ const COLORS = ["#FFCB47","#6EE7B7","#FF9EB5","#9DB4FF","#FFB27A","#C9A7FF","#7F
 const colorFor = s => { let h=0; for (const c of String(s)) h = (h*31 + c.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; };
 const heads = p => 1 + (p.guests?.length || 0);
 const safeUrl = u => /^https?:\/\//i.test(u||"") ? u : "";
+const plural = (n, one, many) => n > 1 ? many : one;
+const initial = s => (String(s || "").trim().charAt(0) || "?").toUpperCase();
+const shortPlace = s => String(s || "").split(",")[0].trim();
+const listNames = a => a.length <= 3 ? a.join(", ") : `${a.slice(0, 3).join(", ")} et ${a.length - 3} autre${a.length - 3 > 1 ? "s" : ""}`;
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2400); }
 function ago(ts){ if(!ts) return ""; const s=Math.round((Date.now()-ts)/1000);
   if(s<45) return "à l'instant"; const m=Math.round(s/60); if(m<60) return `il y a ${m} min`; const h=Math.round(m/60); if(h<24) return `il y a ${h} h`; return `il y a ${Math.round(h/24)} j`; }
+
+/* ================= icons ================= */
+// SVG, not emoji: emoji look different on every phone and several fall under
+// AA contrast on the night background.
+const ICO = {
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  chev:'<path d="m9 6 6 6-6 6"/>',
+  chevl:'<path d="m15 6-6 6 6 6"/>',
+  chevd:'<path d="m6 9 6 6 6-6"/>',
+  cards:'<rect x="7" y="3" width="13" height="16" rx="2.5"/><path d="M4 7v11.5A2.5 2.5 0 0 0 6.5 21H15"/>',
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/>',
+  house:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/>',
+  city:'<path d="M3 21h18"/><path d="M5 21V10l5-2.5V21"/><path d="M10 21V4l6 3v14"/><path d="M16 21v-8l3 1.5V21"/>',
+  people:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.8c1.9.7 3.1 2.5 3.5 5.2"/>',
+  todo:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  star:'<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z"/>',
+  starf:'<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+  pin:'<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/>',
+  bed:'<path d="M3 18V6M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.8"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  heart:'<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z"/>',
+  share:'<path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3"/>',
+  cake:'<path d="M4 21h16"/><path d="M5 21v-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7"/><path d="M5 16.5c1.4.9 2.8.9 4.2 0s2.8-.9 4.2 0 2.8.9 4.2 0"/><path d="M12 12V8.5"/><path d="M12 6c.9-.8.9-1.8 0-3-.9 1.2-.9 2.2 0 3Z"/>',
+  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/>'
+};
+// Solid shapes; every other icon is a stroke.
+const SOLID = new Set(["heart", "starf"]);
+function svg(n, s = 20, w = 2.2){
+  const paint = SOLID.has(n) ? 'fill="currentColor"'
+    : `fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`;
+  return `<svg aria-hidden="true" width="${s}" height="${s}" viewBox="0 0 24 24" ${paint}>${ICO[n] || ""}</svg>`;
+}
 
 /* ================= store ================= */
 let state = null, lastSync = 0, busy = false;
@@ -565,7 +768,8 @@ async function refresh(silent){
     setSync("ok"); $("#banner").innerHTML = "";
   }catch(e){
     setSync("err");
-    if (!silent || !state) $("#banner").innerHTML = `<p class="banner">Impossible de charger la liste. Vérifie ta connexion puis touche « réessayer » en haut.</p>`;
+    if (!silent || !state) $("#banner").innerHTML = `<div class="banner" role="alert"><span>Impossible de charger la liste. Vérifie ta connexion.</span>
+      <button class="lnk ink" type="button" data-action="retry">Réessayer</button></div>`;
   }
 }
 /* read-latest → apply → write, so two people editing at once don't erase each other */
@@ -579,15 +783,84 @@ async function mutate(fn, okMsg){
   finally{ busy = false; }
 }
 
-/* ================= render ================= */
-const SC = { maison:"🏡 La maison", paris:"🌃 Paris" };
-const KIND = { logement:"Logements", soiree:"Soirées", autre:"Autres idées" };
-const STATE = { idee:"À étudier", favori:"⭐ Favori", reserve:"✅ Réservé", ecarte:"Écarté" };
+/* ================= labels ================= */
+const SCN = { maison:"Maison", paris:"Paris" };
+const SCICO = { maison:"home", paris:"city" };
+const KIND = { logement:"Logements", soiree:"Soirées", autre:"Autres" };
+const STATE = { idee:"À étudier", favori:"Favori", reserve:"Réservé", ecarte:"Écarté" };
 const KIND1 = { logement:"Logement", soiree:"Soirée", autre:"Autre idée" };
 // The capacity field holds beds for a place but opening hours or format for
 // a party, so one fixed label would mislabel half the cards.
 const CAPL = { logement:"Capacité", soiree:"Format", autre:"Détails" };
+const CAPI = { logement:"bed", soiree:"clock", autre:"info" };
 const KORDER = { logement:0, soiree:1, autre:2 };
+const scenOf = o => o.scenario === "paris" ? "paris" : "maison";
+const kindOf = o => KIND[o.kind] ? o.kind : "autre";
+
+/* ================= people ================= */
+// « Je ne peux pas » is stored as status "non": the person stays on the list,
+// so the group knows they answered, but never counts as a head.
+const isNo = p => p.status === "non";
+const isSure = p => p.status === "sur";
+// Any other value, older documents included, reads as « probable », as it
+// did before "non" existed.
+const isMaybe = p => !isSure(p) && !isNo(p);
+const sumHeads = list => list.reduce((a, p) => a + heads(p), 0);
+function headcount(){
+  const sure = state.people.filter(isSure), maybe = state.people.filter(isMaybe), no = state.people.filter(isNo);
+  return {sure, maybe, no, nSure:sumHeads(sure), nMaybe:sumHeads(maybe)};
+}
+function prefCounts(){
+  const v = {maison:0, paris:0, egal:0};
+  for (const p of state.people) if (!isNo(p)) v[p.pref in v ? p.pref : "egal"] += heads(p);
+  return v;
+}
+const avatar = (p, cls = "") => `<span class="av ${cls}" style="background:${colorFor(p.name)}" aria-hidden="true">${esc(initial(p.name))}</span>`;
+
+/* ================= birthday night ================= */
+// stay2 answers « would you stay until the 2nd? » for the house plan only.
+// Absent means not asked yet; anything unexpected reads the same way.
+const STAY = ["oui", "non", "?"];
+const stayOf = p => STAY.includes(p.stay2) ? p.stay2 : null;
+// Once Paris is chosen there is no extra night to ask about.
+const stayAsked = () => state.decision !== "paris";
+function stayCounts(){
+  const c = {oui:0, non:0, "?":0, none:0};
+  for (const p of state.people) if (!isNo(p)) c[stayOf(p) || "none"] += heads(p);
+  return c;
+}
+function stayLine(){
+  if (!stayAsked()) return "";
+  const c = stayCounts();
+  const main = c.oui ? `${c.oui} ${plural(c.oui, "reste", "restent")} jusqu'au 2` : "personne ne reste jusqu'au 2 pour l'instant";
+  const more = [c.non ? `${c.non} jusqu'au 1er` : "", c["?"] ? `${c["?"]} ${plural(c["?"], "ne sait pas", "ne savent pas")}` : "",
+    c.none ? `${c.none} sans réponse` : ""].filter(Boolean).join(" · ");
+  return `<p class="bday">${svg("cake", 20, 2)}<span>Anniversaire de ${esc(BIRTHDAY.name)} le ${BIRTHDAY.label} : <b>${main}</b>${more ? `<small>${more}</small>` : ""}</span></p>`;
+}
+const STAYTAG = { oui:["", "Jusqu'au 2"], non:["non", "Jusqu'au 1er"], "?":["unk", "Le 2 ?"] };
+function stayTag(p){
+  const s = stayOf(p); if (!s || isNo(p) || !stayAsked()) return "";
+  const [cls, txt] = STAYTAG[s];
+  return `<span class="stay ${cls}" title="Anniversaire de ${esc(BIRTHDAY.name)} le ${BIRTHDAY.label}">${s === "oui" ? svg("cake", 12, 2.4) : ""}${txt}</span>`;
+}
+
+/* ================= prices ================= */
+// A per-person figure is shown only when the price text already holds one
+// (« ≈146 €/pers »). Dividing a total by a head count here would print a
+// number nobody checked, so every other price stays as written.
+const PER = /(≈\s*)?(\d[\d\s  ]*(?:[.,]\d+)?)\s*€\s*\/\s*pers\.?/i;
+function priceInfo(raw){
+  const text = String(raw || "").trim(), m = text.match(PER);
+  if (!m) return {per:null, sub:"", text};
+  const per = `${m[1] ? "≈" : ""}${m[2].trim()} €`;
+  // « 2 340 € (≈146 €/pers à 16) »: what precedes the brackets is the total.
+  const br = text.match(/^(.+?)\s*\(([^)]*)\)$/);
+  if (br && br[2].includes(m[0].trim())){
+    const base = br[2].match(/à\s*(\d+)/);
+    return {per, text, total:br[1], sub:`${br[1]} au total${base ? `, sur une base de ${base[1]}` : ""}`};
+  }
+  return {per, text, total:"", sub: text === m[0].trim() ? "" : text};
+}
 
 /* ================= votes ================= */
 // A vote lives on its option as votes[personId] = -1 (non), 1 (oui) or
@@ -641,157 +914,304 @@ async function flushVotes(){
   }
 }
 
-function render(){
-  if (!state) return;
-  const me = ls.get("nye_me");
-  const sure = state.people.filter(p => p.status === "sur");
-  const maybe = state.people.filter(p => p.status !== "sur");
-  const nSure = sure.reduce((a,p)=>a+heads(p),0), nMaybe = maybe.reduce((a,p)=>a+heads(p),0);
-
-  // hero
-  $("#bigCount").textContent = nSure;
-  $("#countLab").textContent = nSure > 1 ? "personnes sûres" : "personne sûre";
-  $("#countSub").textContent = nMaybe ? `+ ${nMaybe} probable${nMaybe>1?"s":""} · ${nSure+nMaybe} au maximum` : (nSure ? "Personne en « probable » pour l'instant" : "Inscris-toi en premier");
-  const chips = [];
-  for (const p of [...sure, ...maybe]){
-    const cls = p.status === "sur" ? "sure" : "maybe";
-    chips.push(`<span class="head ${cls}">${esc(p.name)}</span>`);
-    for (const g of (p.guests||[])) chips.push(`<span class="head ${cls} guest">${esc(g)}</span>`);
-  }
-  $("#heads").innerHTML = chips.join("");
-
-  const mine = state.people.find(p => p.id === me);
-  $("#whoami").textContent = mine ? `Inscription au nom de ${mine.name}` : "";
-  $("#fab").textContent = mine ? "Modifier ma réponse" : "Je viens";
-
-  // rate call-to-action
-  const pool = votable();
-  const left = mine ? pool.filter(o => myVote(o) == null).length : pool.length;
-  $("#rateBox").innerHTML = !pool.length ? "" : mine && !left
-    ? `<div class="rate done"><div class="rt"><b>Tu as noté toutes les pistes ✓</b><span>Le classement bouge à chaque vote.</span></div>
-        <button class="btn ghost small" type="button" data-action="rate-all">Revoir</button></div>`
-    : `<div class="rate"><div class="minis" aria-hidden="true"><i></i><i></i><i></i></div>
-        <div class="rt"><b>Note les pistes</b><span>${left} piste${left>1?"s":""} à noter. Swipe à droite pour oui, à gauche pour non, vers le haut pour un coup de cœur.</span></div>
-        <button class="btn primary small" type="button" data-action="rate">C'est parti</button></div>`;
-
-  // status
-  const votes = {maison:0, paris:0, egal:0};
-  for (const p of state.people) votes[p.pref || "egal"] += heads(p);
-  const nextTodo = state.todos.find(t => !t.done);
-  let h, p;
-  if (state.decision){
-    const chosen = state.decision === "maison" ? "la maison" : "Paris";
-    const booked = state.options.find(o => o.scenario === state.decision && o.state === "reserve");
-    h = `C'est décidé : ${chosen}.`;
-    p = booked ? `Réservé : ${esc(booked.title)}.` : "Prochaine étape : trouver et réserver.";
-  } else {
-    h = "On hésite encore entre la maison et Paris.";
-    const lead = votes.maison === votes.paris ? "Égalité pour l'instant" : (votes.maison > votes.paris ? "La maison mène" : "Paris mène");
-    p = state.people.length ? `${lead} : 🏡 ${votes.maison} · 🌃 ${votes.paris} · ${votes.egal} sans préférence. Inscris-toi pour donner ton avis.` : "Inscris-toi et dis ce que tu préfères, ça nous aide à trancher.";
-  }
-  const top = podium();
-  $("#status").innerHTML = `<h2>${h}</h2><p>${p}</p>`
-    + (top.length ? `<p class="toplab">Les mieux notées</p><ol class="top">${top.map(topRow).join("")}</ol>` : "")
-    + (nextTodo ? `<div class="next"><b>À faire</b><span>${esc(nextTodo.text)}</span></div>` : "");
-
-  // counts
-  $("#nQui").textContent = nSure + nMaybe;
-  $("#nPistes").textContent = state.options.filter(o=>o.state!=="ecarte").length;
-  $("#nTodo").textContent = state.todos.filter(t=>!t.done).length;
-
-  // people
-  const prefTxt = {maison:"préfère la maison", paris:"préfère Paris", egal:"les deux lui vont"};
-  const row = p => `<li class="person" data-action="edit-person" data-id="${esc(p.id)}" tabindex="0" role="button" aria-label="Modifier ${esc(p.name)}">
-      <div class="av" style="background:${colorFor(p.name)}">${esc((p.name||"?").trim().charAt(0).toUpperCase())}</div>
-      <div><div class="nm">${esc(p.name)}${p.id===me?'<small>toi</small>':""}</div>
-        <div class="meta">${p.guests?.length ? "avec " + p.guests.map(esc).join(", ") + " · " : ""}${prefTxt[p.pref||"egal"]}</div>
-        ${p.note ? `<div class="note">${esc(p.note)}</div>` : ""}</div>
-      <span class="pill ${p.status==="sur"?"sure":"maybe"}">${p.status==="sur"?"Sûr":"Probable"} · ${heads(p)}</span></li>`;
-  if (!state.people.length){
-    $("#peopleBox").innerHTML = `<div class="empty"><b>Personne pour l'instant</b>Touche « Je viens » pour lancer la liste.</div>`;
-  } else {
-    $("#peopleBox").innerHTML =
-      (sure.length ? `<p class="group-lab">Sûrs · ${nSure}</p><ul class="people">${sure.map(row).join("")}</ul>` : "") +
-      (maybe.length ? `<p class="group-lab">Probables · ${nMaybe}</p><ul class="people">${maybe.map(row).join("")}</ul>` : "");
-  }
-
-  // scenarios
-  const total = votes.maison + votes.paris || 1;
-  // Every vote re-renders this block; keep the « Écartées » folds the
-  // reader opened instead of snapping them shut.
-  const openDrops = new Set([...document.querySelectorAll("details.drop[open]")].map(d => d.dataset.k));
-  $("#scenBox").innerHTML = ["maison","paris"].map(k => {
-    const s = state.scenarios[k] || SEED.scenarios[k];
-    const chosen = state.decision === k, dropped = state.decision && !chosen;
-    const opts = state.options.filter(o => o.scenario === k && o.state !== "ecarte");
-    const gone = state.options.filter(o => o.scenario === k && o.state === "ecarte");
-    const order = {reserve:0,favori:1,idee:2};
-    const groups = Object.keys(KIND).map(kind => {
-      const list = opts.filter(o => (o.kind||"autre") === kind)
-        .map(o => ({o, sc:tally(o).score}))
-        .sort((a,b) => (order[a.o.state]??2)-(order[b.o.state]??2) || b.sc - a.sc)
-        .map(x => x.o);
-      if (!list.length) return kind === "autre" ? "" : `<p class="kind">${KIND[kind]}</p><p class="none">Rien de repéré pour l'instant.</p>`;
-      return `<p class="kind">${KIND[kind]} · ${list.length}</p><ul class="opts">${list.map(optCard).join("")}</ul>`;
-    }).join("") + (gone.length ? `<details class="drop" data-k="${k}" ${openDrops.has(k) ? "open" : ""}>
-        <summary>Écartées · ${gone.length}</summary><ul class="opts">${gone.map(optCard).join("")}</ul></details>` : "");
-    return `<article class="scen ${chosen?"chosen":""} ${dropped?"dropped":""}">
-      <div class="scen-head">
-        <div class="t"><h3>${k==="maison"?"🏡":"🌃"} ${esc(s.title)}</h3>${chosen?'<span class="badge">Choisie</span>':""}</div>
-        <p class="who">${esc(s.who)}</p>
-        <ul class="facts">${(s.facts||[]).map(f=>`<li>${esc(f)}</li>`).join("")}</ul>
-        <div class="votes"><div class="bar"><i style="width:${Math.round(votes[k]/total*100)}%"></i></div>
-          <div class="vl"><span>${votes[k]} personne${votes[k]>1?"s":""} préfère${votes[k]>1?"nt":""} cette piste</span>
-          ${chosen ? `<button class="btn danger small" type="button" data-action="undecide">Annuler le choix</button>` : (!state.decision ? `<button class="btn ghost small" type="button" data-action="decide" data-k="${k}">Choisir</button>` : "")}</div></div>
-      </div>
-      <div class="scen-body">${groups}</div>
-    </article>`;
-  }).join("");
-
-  // todos
-  $("#todos").innerHTML = state.todos.map(t => `<li class="todo ${t.done?"done":""}">
-      <input type="checkbox" data-action="toggle-todo" data-id="${esc(t.id)}" ${t.done?"checked":""} aria-label="${esc(t.text)}">
-      <div><div class="tt">${esc(t.text)}</div>${t.by?`<div class="tw">ajouté par ${esc(t.by)}</div>`:""}</div>
-      <button class="x" type="button" data-action="del-todo" data-id="${esc(t.id)}" aria-label="Supprimer la tâche">×</button></li>`).join("")
-    || `<li class="none">Plus rien à faire. Bonne année 🎉</li>`;
-}
-
-function optCard(o){
-  const u = safeUrl(o.url), t = tally(o), mine = myVote(o);
-  const info = [["Lieu", o.place], ["Prix", o.price], [CAPL[o.kind] || "Détails", o.capacity]]
-    .filter(x => x[1]).map(([l, v]) => `<div><dt>${l}</dt><dd>${esc(v)}</dd></div>`).join("");
-  const vb = (v, ico) => `<button class="vb ${mine === v ? "on" : ""}" type="button" data-action="vote" data-id="${esc(o.id)}" data-v="${v}"
-      aria-pressed="${mine === v}" aria-label="${VOTE[v]}" title="${VOTE[v]}">${ico}</button>`;
-  const canVote = !["ecarte","reserve"].includes(o.state);
-  return `<li class="opt ${esc(o.state||"idee")}">
-    <div class="ohead"><div class="ot">${esc(o.title)}</div>
-      ${t.n ? `<span class="sc ${t.score > 0 ? "pos" : t.score < 0 ? "neg" : ""}" title="Score du groupe">${fmtScore(t.score)}</span>` : ""}</div>
-    ${info ? `<dl class="info">${info}</dl>` : ""}
-    ${o.note ? `<div class="onote">${esc(o.note)}</div>` : ""}
-    ${canVote ? `<div class="ovote"><span class="tally">${t.n ? `♥ ${t.love} · ✓ ${t.yes} · ✕ ${t.no}` : "Pas encore de vote"}</span>
-      <span class="vbtns" role="group" aria-label="Ton avis sur ${esc(o.title)}">${vb(-1, "✕")}${vb(1, "✓")}${vb(2, "♥")}</span></div>` : ""}
-    <div class="oa">
-      <select data-action="opt-state" data-id="${esc(o.id)}" aria-label="Statut de ${esc(o.title)}">
-        ${Object.entries(STATE).map(([v,l])=>`<option value="${v}" ${ (o.state||"idee")===v?"selected":""}>${l}</option>`).join("")}
-      </select>
-      <span class="row">${u?`<a href="${esc(u)}" target="_blank" rel="noopener">Voir le lien</a>`:""}
-      <button class="btn ghost small" type="button" data-action="edit-opt" data-id="${esc(o.id)}">Modifier</button></span>
-    </div></li>`;
+/* ================= orga mode ================= */
+// Orga mode only declutters; it is not access control. Anyone could edit
+// everything before the redesign and anyone can still switch it on.
+let orga = ls.get("nye_orga") === "1";
+function setOrga(on){
+  orga = on; ls.set("nye_orga", on ? "1" : null); render();
+  toast(on ? "Mode orga activé" : "Mode orga désactivé");
 }
 
 /* ================= countdown ================= */
-function tick(){
-  const days = Math.ceil((PARTY - Date.now()) / 86400000);
-  $("#countdown").textContent = days > 1 ? `Le 31 décembre, dans ${days} jours.` : days === 1 ? "C'est demain soir." : days === 0 ? "C'est ce soir !" : "Bonne année 🎉";
+// J-N counts calendar days, the way people say it, not 24-hour blocks.
+function daysLeft(){
+  const n = new Date();
+  return Math.round((Date.UTC(PARTY.getFullYear(), PARTY.getMonth(), PARTY.getDate()) - Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())) / 86400000);
+}
+function jText(long){
+  const d = daysLeft();
+  if (d > 0) return long ? `31 déc. · J-${d}` : `J-${d}`;
+  return d === 0 ? (long ? "31 déc. · Ce soir" : "Ce soir") : "Bonne année !";
+}
+const datePill = long => `<span class="pill-date">${long ? svg("cal", 16) : ""}<span data-j="${long ? "long" : "short"}">${jText(long)}</span></span>`;
+function tick(){ for (const el of document.querySelectorAll("[data-j]")) el.textContent = jText(el.dataset.j === "long"); }
+
+/* ================= render ================= */
+const focusKey = el => ["action","id","v","k"].filter(k => el.dataset[k] != null)
+  .map(k => `[data-${k}="${CSS.escape(el.dataset[k])}"]`).join("");
+function render(){
+  if (!state) return;
+  // Re-rendering replaces the buttons; put focus back on the same control so
+  // a keyboard user voting down the list is not thrown back to the top.
+  const f = document.activeElement;
+  const key = f && f.closest?.("main") && f.dataset?.action ? focusKey(f) : null;
+  renderChrome(); renderHome(); renderPistes(); renderDetail(); renderQui(); renderTodos();
+  if (key && (!document.activeElement || document.activeElement === document.body))
+    document.querySelector("main " + key)?.focus({preventScroll:true});
+}
+function renderChrome(){
+  $("#orgabar").classList.toggle("hidden", !orga);
+  $("#orgaToggle").textContent = orga ? "Quitter le mode orga" : "Mode orga";
+}
+const prefBar = v => {
+  const parts = [["maison", v.maison], ["egal", v.egal], ["paris", v.paris]].filter(x => x[1]);
+  return `<div class="pbar" aria-hidden="true">${parts.length ? parts.map(([k, n]) => `<i class="${k}" style="flex:${n}"></i>`).join("") : '<i style="flex:1"></i>'}</div>`;
+};
+
+function renderHome(){
+  const box = $("#v-accueil");
+  const me = ls.get("nye_me"), mine = state.people.find(p => p.id === me);
+  const {sure, maybe, nSure, nMaybe} = headcount();
+  if (!mine){
+    const first = sure[0] || maybe[0];
+    const live = state.options.filter(o => o.state !== "ecarte").length;
+    const t1 = nSure ? `${nSure} ${plural(nSure, "personne sûre", "personnes sûres")} pour l'instant`
+      : nMaybe ? `${nMaybe} ${plural(nMaybe, "probable", "probables")} pour l'instant` : "Personne n'a encore répondu";
+    const s1 = nSure ? listNames(sure.map(p => p.name)) + (nMaybe ? ` · ${nMaybe} ${plural(nMaybe, "probable", "probables")}` : "")
+      : nMaybe ? listNames(maybe.map(p => p.name)) : "Réponds en premier";
+    box.innerHTML = `
+      <div class="stars" aria-hidden="true"><i style="left:46px;top:120px"></i><i style="left:300px;top:70px;opacity:.45"></i><i class="gold" style="left:250px;top:180px"></i><i style="left:352px;top:230px;opacity:.4"></i></div>
+      <div class="topline"><span class="invite">On t'invite</span>${datePill(true)}</div>
+      <div><h1 class="hero-t">Nouvel An<span>2026 → 2027</span></h1>
+        <p class="hero-p">${state.decision ? `C'est décidé : ${state.decision === "maison" ? "la maison" : "Paris"}. Dis-nous si tu viens.`
+          : "Maison louée près de Saint-Nazaire ou soirée à Paris : on décide ensemble. Dis-nous d'abord si tu viens."}</p></div>
+      <section class="rsvp" aria-labelledby="rsvp-t">
+        <h2 id="rsvp-t">Tu viens ?</h2>
+        <button class="btn primary xl" type="button" data-action="rsvp" data-k="sur">${svg("check", 20, 2.6)}Oui, je viens</button>
+        <div class="two">
+          <button class="btn line" type="button" data-action="rsvp" data-k="probable">Peut-être</button>
+          <button class="btn line" type="button" data-action="rsvp" data-k="non">Je ne peux pas</button>
+        </div>
+        <p class="fine">Tu pourras changer ta réponse quand tu veux.</p>
+      </section>
+      <div class="links">
+        <a class="linkrow" href="#qui">${first ? avatar(first) : `<span class="av ghost" aria-hidden="true">${svg("people", 20, 2)}</span>`}
+          <span class="tx"><b>${esc(t1)}</b><span>${esc(s1)}</span></span>${svg("chev", 20)}</a>
+        <a class="linkrow" href="#pistes"><span class="ibox" aria-hidden="true">${svg("cards", 20, 2)}</span>
+          <span class="tx"><b>${live} ${plural(live, "piste repérée", "pistes repérées")}</b><span>Logements et soirées, maison et Paris</span></span>${svg("chev", 20)}</a>
+      </div>`;
+    return;
+  }
+
+  const st = isNo(mine) ? "non" : isSure(mine) ? "sur" : "probable";
+  const PREF_TE = { maison:"tu préfères la maison", paris:"tu préfères Paris", egal:"les deux te vont" };
+  const STAY_TE = { oui:"jusqu'au 2", non:"jusqu'au 1er", "?":"le 2 : tu ne sais pas" };
+  const meSub = st === "non" ? "Tu as répondu « Je ne peux pas »"
+    : [st === "sur" ? "Sûr" : "Probable", mine.guests?.length ? "avec " + mine.guests.join(", ") : "",
+       PREF_TE[mine.pref] || PREF_TE.egal, stayAsked() && stayOf(mine) ? STAY_TE[stayOf(mine)] : ""].filter(Boolean).join(" · ");
+  const pool = votable(), n = pool.length, done = pool.filter(o => myVote(o) != null).length, all = n > 0 && done >= n;
+  const v = prefCounts(), top = podium();
+  const inPlay = o => !state.decision || o.scenario === state.decision;
+  const booked = state.options.filter(o => o.state === "reserve" && inPlay(o));
+  const favs = state.options.filter(o => o.state === "favori" && inPlay(o));
+  const undone = state.todos.map((t, i) => ({t, i})).filter(x => !x.t.done);
+  const row = (cls, icon, lab, o) => `<div class="inforow ${cls}">${svg(icon, 20, 2)}<span><span class="m">${lab}</span> <b>${esc(o.title)}</b>${o.place ? ", " + esc(shortPlace(o.place)) : ""}</span></div>`;
+  const rows = booked.map(o => row("res", "check", "Réservé :", o)).concat(favs.map(o => row("", "star", "Favori de l'orga :", o)));
+  const bday = st !== "non" ? stayLine() : "";
+
+  box.innerHTML = `
+    <div class="topline"><span class="hello">${avatar(mine, "sm")}<span>Salut ${esc(mine.name)}</span></span>${datePill(false)}</div>
+    <div class="mebar ${st === "non" ? "no" : ""}"><span class="ic" aria-hidden="true">${svg(st === "non" ? "x" : "check", 18, 3)}</span>
+      <span class="tx"><b>${st === "non" ? "Tu ne viens pas" : "Tu es dans la liste"}</b><span>${esc(meSub)}</span></span>
+      <button class="lnk" type="button" data-action="edit-me" aria-label="Modifier ta réponse">Modifier</button></div>
+    ${n && st !== "non" ? `<section class="next" aria-labelledby="next-t">
+      <p class="eyebrow">${all ? "C'est fait" : "Prochaine étape"}</p>
+      <h2 id="next-t">${all ? `Tu as noté ${n === 1 ? "la piste" : `les ${n} pistes`}` : n === 1 ? "Note la piste" : `Note les ${n} pistes`}</h2>
+      <p>${all ? "Le classement bouge à chaque vote. Tu peux changer tes votes quand tu veux."
+        : "Une carte à la fois : oui, non ou coup de cœur. Tu peux t'arrêter et reprendre quand tu veux."}</p>
+      <div><div class="bar" aria-hidden="true"><i style="width:${Math.round(done / n * 100)}%"></i></div>
+        <span class="prog">${done} sur ${n} ${done === 1 ? "notée" : "notées"}</span></div>
+      <button class="btn ink" type="button" data-action="${all ? "rate-all" : "rate"}">${all ? "Revoir mes votes" : done ? "Continuer" : "Commencer"}${svg("arrow", 18, 2.6)}</button>
+    </section>` : ""}
+    <section class="panel" aria-labelledby="where-t">
+      <h2 class="h2" id="where-t">Où on en est</h2>
+      ${state.decision ? `<p class="decided">${svg("check", 18, 3)}C'est décidé : ${state.decision === "maison" ? "la maison" : "Paris"}.</p>` : ""}
+      <div class="bigrow"><span class="big">${nSure}</span>
+        <span><b>${plural(nSure, "personne sûre", "personnes sûres")}</b><span class="sub">${nMaybe
+          ? `+ ${nMaybe} ${plural(nMaybe, "probable", "probables")} · ${nSure + nMaybe} au maximum` : "Aucun « probable » pour l'instant"}</span></span></div>
+      <div class="sep"><div class="prefline"><span>${svg("home", 18, 2)}Maison ${v.maison}</span><span class="m">${v.egal} sans préférence</span><span>Paris ${v.paris}${svg("city", 18, 2)}</span></div>${prefBar(v)}</div>
+      ${bday ? `<div class="sep">${bday}</div>` : ""}
+      ${rows.length ? `<div class="sep rows">${rows.join("")}</div>` : ""}
+      ${top.length ? `<div class="sep"><p class="eyebrow m">Les mieux notées</p><ol class="top">${top.map(topRow).join("")}</ol></div>` : ""}
+    </section>
+    <section aria-labelledby="todo-t">
+      <div class="sechead"><h2 class="h2" id="todo-t">Ce qui reste à régler</h2><a class="lnk" href="#afaire">Tout voir (${state.todos.length})</a></div>
+      ${undone.length ? `<ol class="peek">${undone.slice(0, 2).map(({t, i}) => `<li><span class="num" aria-hidden="true">${i + 1}</span>${esc(t.text)}</li>`).join("")}</ol>`
+        : `<p class="none">Plus rien à faire. Bonne année !</p>`}
+    </section>`;
+}
+
+/* ---------- pistes ---------- */
+let pTab = null;
+const pKind = {};
+const curTab = () => pTab || state.decision || "maison";
+const toolsBlock = () => `<div class="tools"><p class="eyebrow">Autres outils</p>
+  <button class="toolrow" type="button" data-action="add-opt">Ajouter une piste${svg("chev", 18)}</button>
+  <button class="toolrow" type="button" data-action="import-open">Importer des pistes en lot (JSON)${svg("chev", 18)}</button></div>`;
+const VICO = { "-1":["x", 18, 2.6], "1":["check", 20, 2.8], "2":["heart", 18] };
+const voteBtn = (o, v, mine) => `<button class="vb" type="button" data-action="vote" data-id="${esc(o.id)}" data-v="${v}"
+  aria-pressed="${mine === v}" aria-label="${VOTE[v]}" title="${VOTE[v]}">${svg(...VICO[v])}</button>`;
+function tallyLine(t){
+  if (!t.n) return `<span class="tally">Pas encore de vote</span>`;
+  const said = `${t.yes} oui, ${t.love} coup${t.love > 1 ? "s" : ""} de cœur, ${t.no} non, score ${fmtScore(t.score)}`;
+  return `<span class="tally"><span class="sr">${said}</span><span class="tv" aria-hidden="true">
+    <span class="t yes">${svg("check", 14, 3)}${t.yes}</span><span class="t love">${svg("heart", 14)}${t.love}</span>
+    <span class="t no">${svg("x", 14, 3)}${t.no}</span><span class="t ${t.score > 0 ? "pos" : t.score < 0 ? "neg" : ""}">Score ${fmtScore(t.score)}</span></span></span>`;
+}
+function pisteCard(o){
+  const t = tally(o), mine = myVote(o), pr = priceInfo(o.price);
+  const canVote = !["ecarte","reserve"].includes(o.state);
+  const meta = [shortPlace(o.place), o.capacity].filter(Boolean).join(" · ");
+  const flag = o.state === "favori" ? `<span class="flag fav">${svg("starf", 13)}Favori de l'orga</span>`
+    : o.state === "reserve" ? `<span class="flag res">${svg("check", 13, 3)}Réservé</span>` : "";
+  const price = pr.per ? `<div class="pc-p"><b>${esc(pr.per)}</b><span>par pers.</span></div>`
+    : pr.text ? `<div class="pc-p raw"><b>${esc(pr.text)}</b></div>` : "";
+  return `<li class="pc ${esc(o.state || "idee")}">
+    <div class="pc-h"><div class="pc-l">${flag}<a class="pc-t" href="#piste/${encodeURIComponent(o.id)}">${esc(o.title)}</a>
+      ${meta ? `<span class="pc-m">${esc(meta)}</span>` : ""}</div>${price}</div>
+    ${canVote ? `<div class="pc-v">${tallyLine(t)}<span class="vbtns" role="group" aria-label="Ton avis sur ${esc(o.title)}">${[-1, 1, 2].map(v => voteBtn(o, v, mine)).join("")}</span></div>` : ""}
+  </li>`;
+}
+function renderPistes(){
+  const tab = curTab(), me = myId();
+  const live = state.options.filter(o => o.state !== "ecarte");
+  const rated = me ? votable().filter(o => myVote(o) != null).length : 0;
+  const s = state.scenarios[tab] || SEED.scenarios[tab];
+  const v = prefCounts(), total = v.maison + v.paris || 1;
+  const chosen = state.decision === tab, dropped = !!state.decision && !chosen;
+  const opts = live.filter(o => scenOf(o) === tab);
+  const gone = state.options.filter(o => scenOf(o) === tab && o.state === "ecarte");
+  const count = k => opts.filter(o => kindOf(o) === k).length;
+  const kind = pKind[tab] || Object.keys(KIND).find(k => count(k)) || "logement";
+  const order = {reserve:0, favori:1, idee:2};
+  const list = opts.filter(o => kindOf(o) === kind).map(o => ({o, sc:tally(o).score}))
+    .sort((a, b) => (order[a.o.state] ?? 2) - (order[b.o.state] ?? 2) || b.sc - a.sc).map(x => x.o);
+  // Every vote re-renders this block; keep the « écartées » fold the reader
+  // opened instead of snapping it shut.
+  const openDrop = !!document.querySelector(`#v-pistes details.drop[open][data-k="${tab}"]`);
+  const tabBtn = k => `<button type="button" role="tab" id="tab-${k}" aria-controls="pistes-panel" aria-selected="${k === tab}" tabindex="${k === tab ? 0 : -1}"
+    data-action="tab" data-k="${k}">${svg(SCICO[k], 18)}${SCN[k]} <span class="n">${live.filter(o => scenOf(o) === k).length}</span></button>`;
+  const bday = tab === "maison" ? stayLine() : "";
+  $("#v-pistes").innerHTML = `
+    <header class="vhead"><div><h1>Les pistes</h1><p>${live.length} en lice${me ? ` · tu en as noté ${rated}` : ""}</p></div>
+      <button class="btn primary sm" type="button" data-action="rate">${svg("cards", 18)}Swiper</button></header>
+    <div class="tabs2" role="tablist" aria-label="Scénario">${tabBtn("maison")}${tabBtn("paris")}</div>
+    <div class="vstack" id="pistes-panel" role="tabpanel" aria-labelledby="tab-${tab}">
+      <section class="panel scen ${chosen ? "chosen" : ""} ${dropped ? "dropped" : ""}" aria-labelledby="scen-t">
+        <div class="scen-h"><h2 id="scen-t">${esc(s.title)}</h2>${chosen ? '<span class="badge">Choisie</span>' : ""}</div>
+        ${s.who ? `<p class="who">${esc(s.who)}</p>` : ""}
+        ${(s.facts || []).length ? `<ul class="facts">${s.facts.map(f => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
+        <div class="sbar"><div class="bar" aria-hidden="true"><i style="width:${Math.round(v[tab] / total * 100)}%"></i></div>
+          <span>${v[tab] ? `${v[tab]} ${plural(v[tab], "personne préfère", "personnes préfèrent")} cette piste` : "Personne n'a encore choisi cette piste"}</span></div>
+        ${bday ? `<div class="sep">${bday}</div>` : ""}
+      </section>
+      <div class="chips" role="group" aria-label="Filtrer par type">${Object.keys(KIND).map(k =>
+        `<button type="button" class="chip" aria-pressed="${k === kind}" data-action="kind" data-k="${k}">${KIND[k]} ${count(k)}</button>`).join("")}</div>
+      ${list.length ? `<ul class="plist">${list.map(pisteCard).join("")}</ul>` : `<p class="none">Rien de repéré pour l'instant.</p>`}
+      ${gone.length ? `<details class="drop" data-k="${tab}" ${openDrop ? "open" : ""}>
+        <summary>${gone.length} ${plural(gone.length, "piste écartée", "pistes écartées")}${svg("chevd", 18)}</summary>
+        <ul class="gone">${gone.map(o => `<li><a href="#piste/${encodeURIComponent(o.id)}"><b>${esc(o.title)}</b>${o.note ? `<span>${esc(o.note)}</span>` : ""}</a></li>`).join("")}</ul>
+      </details>` : ""}
+      ${orga ? toolsBlock() : ""}
+    </div>`;
+}
+
+/* ---------- piste detail ---------- */
+function renderDetail(){
+  if (route.view !== "piste") return;
+  const box = $("#v-piste"), o = state.options.find(x => x.id === route.id);
+  const back = `<a class="lnk m back" href="#pistes" data-action="back">${svg("chevl", 20)}Pistes</a>`;
+  if (!o){ box.innerHTML = `${back}<div class="empty"><b>Cette piste n'existe plus</b>Elle a sans doute été supprimée.</div>${orga ? toolsBlock() : ""}`; return; }
+  const t = tally(o), pr = priceInfo(o.price), u = safeUrl(o.url), k = scenOf(o);
+  const names = new Map(state.people.map(p => [p.id, p.name]));
+  const by = {"2":[], "1":[], "-1":[]};
+  for (const [pid, v] of Object.entries(o.votes || {})) if (names.has(pid) && by[v]) by[v].push(names.get(pid));
+  const meta = [o.place, o.capacity].filter(Boolean).join(" · ");
+  const label = k === "maison" ? "la maison" : "Paris";
+  const stateTag = orga ? "" : o.state === "favori" ? `<span class="tag fav">${svg("starf", 14)}Favori de l'orga</span>`
+    : o.state === "reserve" ? `<span class="tag res">${svg("check", 14, 3)}Réservé</span>` : o.state === "ecarte" ? `<span class="tag">Écartée</span>` : "";
+  const price = pr.per ? `<div class="dprice"><b>${esc(pr.per)}</b><span>par pers.${pr.sub ? ` · ${esc(pr.sub)}` : ""}</span></div>`
+    : pr.text ? `<div class="dprice raw"><span class="sr">Prix : </span><b>${esc(pr.text)}</b></div>` : "";
+  const decide = !state.decision
+    ? `<button class="btn primary blk" type="button" data-action="decide" data-k="${k}">${svg(SCICO[k], 18)}Valider ${label} pour tout le monde</button>`
+    : `<button class="btn line blk" type="button" data-action="undecide">Annuler le choix de ${state.decision === "maison" ? "la maison" : "Paris"}</button>`;
+  box.innerHTML = `${back}
+    <div class="dt">
+      <div class="tags"><span class="tag">${svg(SCICO[k], 15)}${SCN[k]} · ${KIND1[o.kind] || "Autre idée"}</span>${stateTag}</div>
+      <h1>${esc(o.title)}</h1>
+      ${price}
+      ${meta ? `<p class="dmeta">${esc(meta)}</p>` : ""}
+      ${o.note ? `<p class="dnote">${esc(o.note)}</p>` : ""}
+      ${u ? `<a class="lnk" href="${esc(u)}" target="_blank" rel="noopener">Voir l'annonce${svg("ext", 16)}</a>` : ""}
+    </div>
+    <section class="panel" aria-labelledby="votes-t">
+      <div class="sechead"><h2 class="h3" id="votes-t">Votes</h2><span class="scpill">Score ${fmtScore(t.score)}</span></div>
+      <div class="vtiles"><div><b class="c-no">${t.no}</b><span>Non</span></div><div><b class="c-yes">${t.yes}</b><span>Oui</span></div><div><b class="c-love">${t.love}</b><span>Coup de cœur</span></div></div>
+      <p class="vnote">Oui +1 · coup de cœur +2 · non −1.${t.n ? "" : " Personne n'a encore voté."}</p>
+      ${t.n ? `<ul class="vlist">${[["2", "Coup de cœur"], ["1", "Oui"], ["-1", "Non"]].filter(([v]) => by[v].length)
+        .map(([v, l]) => `<li><b>${l} :</b>${esc(by[v].join(", "))}</li>`).join("")}</ul>` : ""}
+    </section>
+    ${orga ? `<section class="orga-box" aria-labelledby="orga-t">
+      <h2 id="orga-t">Réservé à l'orga</h2>
+      <fieldset><legend>Statut</legend><div class="stgrid">${Object.keys(STATE).map(s => `<label class="st"><input class="rad" type="radio" name="ostate" value="${s}"
+        data-action="opt-state" data-id="${esc(o.id)}" ${(o.state || "idee") === s ? "checked" : ""}>${s === "favori" ? svg("starf", 15) : ""}${STATE[s]}</label>`).join("")}</div></fieldset>
+      ${decide}
+      <div class="orga-row"><button class="lnk ink" type="button" data-action="edit-opt" data-id="${esc(o.id)}">Modifier la piste</button>
+        <button class="lnk pink" type="button" data-action="del-opt" data-id="${esc(o.id)}">Supprimer</button></div>
+    </section>${toolsBlock()}` : ""}`;
+}
+
+/* ---------- qui vient ---------- */
+function renderQui(){
+  const me = ls.get("nye_me"), {sure, maybe, no, nSure, nMaybe} = headcount(), v = prefCounts();
+  const PREF_LUI = { maison:"Préfère la maison", paris:"Préfère Paris", egal:"Les deux lui vont" };
+  const row = p => {
+    const edit = p.id === me || orga;
+    const meta = isNo(p) ? "" : [PREF_LUI[p.pref] || PREF_LUI.egal, p.guests?.length ? "avec " + p.guests.join(", ") : ""].filter(Boolean).join(" · ");
+    const inner = `${avatar(p, "lg")}<span class="pr-b"><span class="pr-n">${esc(p.name)}${p.id === me ? '<span class="you">Toi</span>' : ""}${stayTag(p)}</span>
+      ${meta ? `<span class="pr-m">${esc(meta)}</span>` : ""}${p.note ? `<span class="pr-note">${esc(p.note)}</span>` : ""}</span>${edit ? '<span class="pr-e">Modifier</span>' : "<span></span>"}`;
+    return `<li>${edit ? `<button class="prow" type="button" data-action="edit-person" data-id="${esc(p.id)}">${inner}</button>` : `<div class="prow">${inner}</div>`}</li>`;
+  };
+  const group = (lab, list) => list.length ? `<div><h2 class="glab">${lab}</h2><ul class="people">${list.map(row).join("")}</ul></div>` : "";
+  $("#v-qui").innerHTML = `
+    <header class="vhead"><div><h1>Qui vient</h1><p>Tout le monde voit la même liste, en direct.</p></div></header>
+    <div class="tiles">
+      <div class="tile sure"><span class="n">${nSure}</span><span class="l">${plural(nSure, "Sûr", "Sûrs")}</span></div>
+      <div class="tile maybe"><span class="n">${nMaybe}</span><span class="l">${plural(nMaybe, "Probable", "Probables")}</span></div>
+      <div class="tile"><span class="n">${no.length}</span><span class="l">${plural(no.length, "Ne vient pas", "Ne viennent pas")}</span></div>
+    </div>
+    <section class="panel pref" aria-labelledby="pref-t">
+      <h2 class="h3" id="pref-t">Maison ou Paris ?</h2>${prefBar(v)}
+      <div class="legend"><span><i class="maison"></i>Maison ${v.maison}</span><span><i class="paris"></i>Paris ${v.paris}</span><span class="m"><i></i>Les deux ${v.egal}</span></div>
+    </section>
+    ${state.people.length ? group(`Sûrs · ${nSure}`, sure) + group(`Probables · ${nMaybe}`, maybe) + group(`Ne viennent pas · ${no.length}`, no)
+      : `<div class="empty"><b>Personne pour l'instant</b>Réponds depuis l'accueil pour lancer la liste.</div>`}
+    <section class="invite-box" aria-labelledby="inv-t">
+      <h2 id="inv-t">Il manque du monde</h2>
+      <p>Envoie le lien dans le groupe : chacun répond en 30 secondes.</p>
+      <div class="row"><button class="btn primary" type="button" data-action="share">${svg("share", 18)}Partager le lien</button>
+        <button class="btn line" type="button" data-action="copy">Copier</button></div>
+    </section>`;
+}
+
+/* ---------- à faire ---------- */
+function renderTodos(){
+  const n = state.todos.length, done = state.todos.filter(t => t.done).length;
+  const nowId = state.todos.find(t => !t.done)?.id;
+  $("#afaireBox").innerHTML = !n ? `<p class="none">Plus rien à faire. Bonne année !</p>` : `
+    <div class="tprog"><div class="tprog-l"><span>${done} sur ${n} ${done === 1 ? "réglée" : "réglées"}</span><span class="m" data-j="short">${jText(false)}</span></div>
+      <div class="bar" aria-hidden="true"><i style="width:${Math.round(done / n * 100)}%"></i></div></div>
+    <ol class="tlist">${state.todos.map(t => { const id = esc("td-" + t.id), now = t.id === nowId;
+      return `<li class="ti ${t.done ? "done" : ""} ${now ? "now" : ""} ${orga ? "orga" : ""}">
+        <input type="checkbox" id="${id}" data-action="toggle-todo" data-id="${esc(t.id)}" ${t.done ? "checked" : ""}>
+        <label for="${id}">${now ? '<span class="nowtag">Maintenant</span>' : ""}<span class="tt">${esc(t.text)}</span>${t.by ? `<span class="tw">Ajouté par ${esc(t.by)}</span>` : ""}</label>
+        ${orga ? `<button class="xsm" type="button" data-action="del-todo" data-id="${esc(t.id)}" aria-label="Supprimer la tâche « ${esc(t.text)} »">${svg("x", 18)}</button>` : ""}</li>`; }).join("")}</ol>`;
 }
 
 /* ================= dialogs ================= */
 function openDlg(d){ if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open",""); }
 function closeDlg(d){ if (typeof d.close === "function") d.close(); else d.removeAttribute("open"); }
-document.querySelectorAll("dialog").forEach(d => {
-  d.addEventListener("click", e => { if (e.target === d) closeDlg(d); });
-  d.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => closeDlg(d)));
-});
 function confirmDlg(title, text, yes){
   return new Promise(res => {
     const d=$("#dlgConfirm"); $("#cTitle").textContent=title; $("#cText").textContent=text; $("#cYes").textContent=yes||"Confirmer";
@@ -800,47 +1220,101 @@ function confirmDlg(title, text, yes){
   });
 }
 
-let editingPerson = null;
-function openPerson(id){
+let editingPerson = null, sheetGuests = [];
+const checkedVal = name => document.querySelector(`input[name=${name}]:checked`)?.value ?? null;
+function drawGuests(){
+  $("#pGuestList").innerHTML = sheetGuests.map((g, i) => `<li>${esc(g)}<button type="button" data-rm="${i}" aria-label="Retirer ${esc(g)}">${svg("x", 16, 2.4)}</button></li>`).join("");
+}
+function addGuests(){
+  const names = $("#pGuest").value.split(/[,;\n]/).map(s => s.trim()).filter(Boolean);
+  for (const nm of names) if (sheetGuests.length < 12) sheetGuests.push(nm.slice(0, 40));
+  $("#pGuest").value = ""; drawGuests();
+}
+// Guests and preferences matter only to someone who comes; the birthday
+// night only while the house is still possible.
+function syncSheet(){
+  const no = checkedVal("pStatus") === "non";
+  $("#pGuestsBox").classList.toggle("hidden", no);
+  $("#pPrefBox").classList.toggle("hidden", no);
+  $("#pStayBox").classList.toggle("hidden", no || !stayAsked());
+}
+function openPerson(id, st){
   const p = id ? state.people.find(x => x.id === id) : null;
   editingPerson = p ? p.id : null;
-  $("#pTitle").textContent = p ? `Modifier · ${p.name}` : "Je m'inscris";
-  $("#pLede").textContent = p ? "Change ce qui a bougé, c'est enregistré pour tout le monde." : "Une inscription par personne, avec ses +1.";
+  const status = p ? (isNo(p) ? "non" : isSure(p) ? "sur" : "probable") : (["sur","probable","non"].includes(st) ? st : "sur");
+  const own = p && p.id === ls.get("nye_me");
+  $("#pTitle").textContent = p ? (own ? "Modifier ta réponse" : `Modifier · ${p.name}`)
+    : status === "non" ? "Dommage !" : status === "probable" ? "Tu viens peut-être" : "Super, tu viens !";
+  $("#pLede").textContent = p ? "Change ce qui a bougé, c'est enregistré pour tout le monde."
+    : status === "non" ? "Laisse ton prénom : le groupe saura que tu ne viens pas." : "Deux infos et c'est réglé.";
   $("#pName").value = p?.name || "";
-  $("#pGuests").value = (p?.guests || []).join(", ");
+  sheetGuests = [...(p?.guests || [])]; $("#pGuest").value = ""; drawGuests();
   $("#pNote").value = p?.note || "";
-  document.querySelector(`input[name=pStatus][value="${p?.status || "sur"}"]`).checked = true;
-  document.querySelector(`input[name=pPref][value="${p?.pref || "egal"}"]`).checked = true;
-  $("#pSubmit").textContent = p ? "Enregistrer" : "M'inscrire";
+  document.querySelector(`input[name=pStatus][value="${status}"]`).checked = true;
+  const pref = ["maison","paris","egal"].includes(p?.pref) ? p.pref : "egal";
+  document.querySelector(`input[name=pPref][value="${pref}"]`).checked = true;
+  document.querySelectorAll("input[name=pStay]").forEach(r => { r.checked = r.value === (p ? stayOf(p) : null); });
+  $("#pStayLeg").textContent = `${state.decision === "maison" ? "On part sur la maison : tu" : "Si on part sur la maison, tu"} restes jusqu'au ${BIRTHDAY.label} pour fêter l'anniversaire de ${BIRTHDAY.name} ?`;
+  // A newcomer who tapped « Oui » or « Peut-être » picks between those two;
+  // « Je ne viens pas » is offered once they are on the list.
+  $("#pNoOpt").classList.toggle("hidden", !p);
+  $("#pStatusLeg").textContent = p ? "Réponse" : "Sûr ou probable ?";
+  $("#pStatusBox").classList.toggle("hidden", !p && status === "non");
+  syncSheet();
+  const hasNote = !!p?.note;
+  $("#pNoteBox").classList.toggle("hidden", !hasNote); $("#pNoteBtn").classList.toggle("hidden", hasNote);
+  $("#pSubmit").textContent = p ? "Enregistrer" : status === "non" ? "Envoyer ma réponse" : "M'inscrire";
+  $("#pSubmit").disabled = false;
   $("#pDelete").classList.toggle("hidden", !p);
-  $("#pErr").textContent = "";
+  $("#pErr").innerHTML = "";
   openDlg($("#dlgPerson"));
   if (!p) setTimeout(()=>$("#pName").focus(), 60);
 }
+$("#pGuestAdd").addEventListener("click", () => { addGuests(); $("#pGuest").focus(); });
+$("#pGuest").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); addGuests(); } });
+$("#pGuestList").addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (b){ sheetGuests.splice(Number(b.dataset.rm), 1); drawGuests(); } });
+document.querySelectorAll("input[name=pStatus]").forEach(r => r.addEventListener("change", syncSheet));
+$("#pNoteBtn").addEventListener("click", () => { $("#pNoteBox").classList.remove("hidden"); $("#pNoteBtn").classList.add("hidden"); $("#pNote").focus(); });
+$("#pErr").addEventListener("click", e => {
+  const b = e.target.closest("[data-claim]"); if (!b) return;
+  const p = state.people.find(x => x.id === b.dataset.claim); if (!p) return;
+  ls.set("nye_me", p.id); closeDlg($("#dlgPerson")); render(); toast(`Te revoilà, ${p.name}`);
+});
 $("#personForm").addEventListener("submit", async e => {
   e.preventDefault();
   const name = $("#pName").value.trim();
-  if (!name){ $("#pErr").textContent = "Indique ton prénom pour t'inscrire."; return; }
-  const rec = {
-    name, guests: $("#pGuests").value.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean).slice(0,12),
-    status: document.querySelector("input[name=pStatus]:checked").value,
-    pref: document.querySelector("input[name=pPref]:checked").value,
-    note: $("#pNote").value.trim()
-  };
-  if (!editingPerson && state.people.some(p => p.name.toLowerCase() === name.toLowerCase())){
-    $("#pErr").textContent = `${name} est déjà sur la liste. Touche son nom dans la liste pour modifier sa réponse.`; return;
+  if (!name){ $("#pErr").textContent = "Indique ton prénom pour t'inscrire."; $("#pName").focus(); return; }
+  addGuests();
+  const status = checkedVal("pStatus") || "sur";
+  const rec = { name, guests: sheetGuests.slice(0,12), status, pref: checkedVal("pPref") || "egal", note: $("#pNote").value.trim() };
+  // Only an answer given on screen is written; a hidden or untouched
+  // question keeps whatever the document already holds. Visibility, not
+  // stayAsked(), decides: a poll may change the decision while the sheet
+  // is open, and the answer the guest picked must not vanish.
+  const stay = checkedVal("pStay");
+  if (stay && !$("#pStayBox").classList.contains("hidden")) rec.stay2 = stay;
+  if (!editingPerson){
+    const dup = state.people.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (dup){
+      // Same trust as the « Qui es-tu ? » picker: no account, so whoever
+      // says it is them is believed.
+      $("#pErr").innerHTML = `${esc(dup.name)} est déjà sur la liste.<button class="lnk" type="button" data-claim="${esc(dup.id)}">C'est moi</button>`;
+      return;
+    }
   }
-  const id = editingPerson || uid(), isNew = !editingPerson;
+  const id = editingPerson || uid(), isNew = !editingPerson, btn = $("#pSubmit"), label = btn.textContent;
+  btn.disabled = true; btn.textContent = "Enregistrement…";
   const ok = await mutate(d => {
     const i = d.people.findIndex(p => p.id === id);
     if (i >= 0) d.people[i] = {...d.people[i], ...rec, at:Date.now()};
     else d.people.push({id, ...rec, at:Date.now()});
-  }, editingPerson ? "Réponse modifiée" : `Bienvenue ${name}, tu es sur la liste 🎉`);
+  }, !isNew ? "Réponse modifiée" : status === "non" ? "C'est noté, merci d'avoir répondu" : `Bienvenue ${name}, tu es sur la liste`);
+  btn.disabled = false; btn.textContent = label;
   if (ok){
     if (!editingPerson || editingPerson === ls.get("nye_me") || !ls.get("nye_me")) ls.set("nye_me", id);
     closeDlg($("#dlgPerson")); render();
     // Someone who just said « je viens » goes straight to rating the pistes.
-    if (isNew && votable().length) setTimeout(() => openDeck(false), 280);
+    if (isNew && status !== "non" && votable().length) setTimeout(() => openDeck(false), 280);
   }
 });
 $("#pDelete").addEventListener("click", async () => {
@@ -852,6 +1326,7 @@ $("#pDelete").addEventListener("click", async () => {
     for (const o of d.options) if (o.votes) delete o.votes[p.id];
   }, `${p.name} n'est plus sur la liste`);
   if (ls.get("nye_me") === p.id) ls.set("nye_me", null);
+  render();
 });
 
 let editingOpt = null;
@@ -859,12 +1334,12 @@ function openOpt(id){
   const o = id ? state.options.find(x => x.id === id) : null;
   editingOpt = o ? o.id : null;
   $("#oTitle").textContent = o ? "Modifier la piste" : "Ajouter une piste";
-  document.querySelector(`input[name=oScen][value="${o?.scenario || state.decision || "maison"}"]`).checked = true;
-  document.querySelector(`input[name=oKind][value="${o?.kind || "logement"}"]`).checked = true;
+  document.querySelector(`input[name=oScen][value="${o ? scenOf(o) : curTab()}"]`).checked = true;
+  document.querySelector(`input[name=oKind][value="${o ? kindOf(o) : "logement"}"]`).checked = true;
   $("#oName").value = o?.title || ""; $("#oUrl").value = o?.url || ""; $("#oPrice").value = o?.price || "";
   $("#oCap").value = o?.capacity || ""; $("#oPlace").value = o?.place || ""; $("#oNote").value = o?.note || "";
   $("#oSubmit").textContent = o ? "Enregistrer" : "Ajouter";
-  $("#oDelete").classList.toggle("hidden", !o); $("#oErr").textContent = "";
+  $("#oErr").textContent = "";
   openDlg($("#dlgOpt"));
 }
 $("#optForm").addEventListener("submit", async e => {
@@ -873,7 +1348,7 @@ $("#optForm").addEventListener("submit", async e => {
   if (!title){ $("#oErr").textContent = "Donne un nom à la piste."; return; }
   const u = $("#oUrl").value.trim();
   if (u && !safeUrl(u)){ $("#oErr").textContent = "Le lien doit commencer par https://"; return; }
-  const rec = { scenario: document.querySelector("input[name=oScen]:checked").value, kind: document.querySelector("input[name=oKind]:checked").value,
+  const rec = { scenario: checkedVal("oScen"), kind: checkedVal("oKind"),
     title, url:u, price:$("#oPrice").value.trim(), capacity:$("#oCap").value.trim(), place:$("#oPlace").value.trim(), note:$("#oNote").value.trim() };
   const me = state.people.find(p => p.id === ls.get("nye_me"));
   const id = editingOpt || uid();
@@ -884,12 +1359,26 @@ $("#optForm").addEventListener("submit", async e => {
   }, editingOpt ? "Piste modifiée" : "Piste ajoutée");
   if (ok) closeDlg($("#dlgOpt"));
 });
-$("#oDelete").addEventListener("click", async () => {
-  const o = state.options.find(x => x.id === editingOpt); if (!o) return;
-  closeDlg($("#dlgOpt"));
+async function deleteOpt(id){
+  const o = state.options.find(x => x.id === id); if (!o) return;
   if (!await confirmDlg("Supprimer cette piste ?", `« ${o.title} » disparaîtra pour tout le monde. Pour la garder en mémoire, mets-la plutôt en « Écarté ».`, "Supprimer")) return;
-  await mutate(d => { d.options = d.options.filter(x => x.id !== o.id); }, "Piste supprimée");
-});
+  if (await mutate(d => { d.options = d.options.filter(x => x.id !== o.id); }, "Piste supprimée") && route.view === "piste") location.replace("#pistes");
+}
+
+/* ================= share ================= */
+const shareUrl = () => location.href.split("#")[0];
+async function copyLink(){
+  try{ await navigator.clipboard.writeText(shareUrl()); toast("Lien copié"); }
+  catch(e){ toast("Copie impossible : copie l'adresse de la page"); }
+}
+async function shareLink(){
+  if (!navigator.share) return copyLink();
+  // AbortError means the guest closed the share sheet. Anything else (an
+  // embedding page without the web-share permission, for one) must still
+  // hand out the link, so fall back to the clipboard.
+  try{ await navigator.share({title: document.title, url: shareUrl()}); }
+  catch(e){ if (e.name !== "AbortError") copyLink(); }
+}
 
 /* ================= swipe deck ================= */
 const deck = { list:[], i:0, hist:[], lock:false };
@@ -910,53 +1399,54 @@ function openDeck(all){
   if (!dlg.open) openDlg(dlg);
 }
 function renderWho(){
-  $("#dkCount").textContent = ""; $("#dkBar").style.width = "0"; $("#dkUndo").classList.add("hidden");
+  $("#dkCount").textContent = ""; $("#dkBar").style.width = "0"; $("#dkUndo").classList.add("invisible");
   const ppl = [...state.people].sort((a, b) => a.name.localeCompare(b.name, "fr"));
-  $("#dkBody").innerHTML = `<div class="who-pick"><h2>Qui es-tu ?</h2>
+  $("#dkBody").innerHTML = `<div class="who-pick"><h2 class="dh">Qui es-tu ?</h2>
     <p class="lede">Tes votes comptent à ton nom : une voix par personne dans le classement.</p>
-    ${ppl.length ? `<div class="who-list">${ppl.map(p => `<button class="who-btn" type="button" data-who="${esc(p.id)}">
-      <span class="av" style="background:${colorFor(p.name)}">${esc((p.name||"?").trim().charAt(0).toUpperCase())}</span>${esc(p.name)}</button>`).join("")}</div>` : ""}
-    <button class="btn ${ppl.length ? "ghost" : "primary"}" type="button" data-deck-join>Je ne suis pas dans la liste</button></div>`;
+    ${ppl.length ? `<div class="who-list">${ppl.map(p => `<button class="who-btn" type="button" data-who="${esc(p.id)}">${avatar(p, "sm")}${esc(p.name)}</button>`).join("")}</div>` : ""}
+    <button class="btn ${ppl.length ? "line" : "primary"}" type="button" data-deck-join>Je ne suis pas dans la liste</button></div>`;
 }
-function deckCard(o, cls){
+function deckCard(o){
   o = fresh(o);
-  const u = safeUrl(o.url), mine = myVote(o);
-  // Same three rows on every card, filled or not, so cards compare at a glance.
-  const row = (l, v) => `<div><dt>${l}</dt><dd${v ? "" : ' class="na"'}>${v ? esc(v) : "Non renseigné"}</dd></div>`;
-  return `<article class="card ${cls}" ${cls === "next" ? 'aria-hidden="true"' : ""}>
-    <div class="tags"><span class="tag">${SC[o.scenario] || ""}</span><span class="tag">${KIND1[o.kind] || "Autre idée"}</span>${o.state === "favori" ? '<span class="tag fav">⭐ Favori</span>' : ""}</div>
-    <h3>${esc(o.title)}</h3>
-    <dl class="info">${row("Lieu", o.place)}${row("Prix", o.price)}${row(CAPL[o.kind] || "Détails", o.capacity)}</dl>
+  const u = safeUrl(o.url), mine = myVote(o), pr = priceInfo(o.price), k = scenOf(o);
+  // Same rows on every card, filled or not, so cards compare at a glance.
+  const row = (ic, l, v) => `<li>${svg(ic, 20, 2)}<span class="sr">${l} : </span>${v ? `<span>${esc(v)}</span>` : '<span class="na">Non renseigné</span>'}</li>`;
+  const price = pr.per ? `<div class="cprice"><b>${esc(pr.per)}</b><span>par personne</span></div>${pr.sub ? `<span class="csub">${esc(pr.sub)}</span>` : ""}`
+    : pr.text ? `<div class="cprice raw"><span class="sr">Prix : </span><b>${esc(pr.text)}</b></div>` : `<div class="cprice na"><b>Prix non renseigné</b></div>`;
+  return `<article class="card top">
+    <div class="tags"><span class="tag">${svg(SCICO[k], 15)}${SCN[k]} · ${KIND1[o.kind] || "Autre idée"}</span>${o.state === "favori" ? `<span class="tag fav">${svg("starf", 14)}Favori de l'orga</span>` : ""}</div>
+    <h2>${esc(o.title)}</h2>
+    ${price}
+    <ul class="crows">${row("pin", "Lieu", o.place)}${row(CAPI[o.kind] || "info", CAPL[o.kind] || "Détails", o.capacity)}</ul>
     ${o.note ? `<p class="cnote">${esc(o.note)}</p>` : ""}
-    <div class="cfoot">${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">Voir le lien ↗</a>` : "<span></span>"}
+    <div class="cfoot">${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">Voir l'annonce${svg("ext", 16)}</a>` : "<span></span>"}
       ${mine != null ? `<span class="was">Ton vote : ${VOTE[mine]}</span>` : ""}</div>
-    <span class="stamp s-yes">Oui</span><span class="stamp s-no">Non</span><span class="stamp s-love">Coup de cœur</span>
+    <span class="stamp s-yes" aria-hidden="true">Oui</span><span class="stamp s-no" aria-hidden="true">Non</span><span class="stamp s-love" aria-hidden="true">Coup de cœur</span>
   </article>`;
 }
 function renderDeck(){
   const n = deck.list.length, done = deck.i >= n;
-  $("#dkUndo").classList.remove("hidden"); $("#dkUndo").disabled = !deck.hist.length;
-  $("#dkCount").textContent = done ? "Terminé" : `${deck.i + 1} sur ${n}`;
+  $("#dkUndo").classList.remove("invisible"); $("#dkUndo").disabled = !deck.hist.length;
+  $("#dkCount").textContent = done ? "Terminé" : `Piste ${deck.i + 1} sur ${n}`;
   $("#dkBar").style.width = `${Math.round(Math.min(deck.i, n) / (n || 1) * 100)}%`;
   deck.lock = false;
   if (done){ flushVotes(); $("#dkBody").innerHTML = deckEnd(); return; }
-  const nxt = deck.list[deck.i + 1];
-  $("#dkBody").innerHTML = `<div class="stack">${nxt ? deckCard(nxt, "next") : ""}${deckCard(deck.list[deck.i], "top")}</div>
+  $("#dkBody").innerHTML = `<div class="stack">${deck.list[deck.i + 1] ? '<div class="plate" aria-hidden="true"></div>' : ""}${deckCard(deck.list[deck.i])}</div>
     <div class="acts">
-      <button class="act no" type="button" data-deck="-1"><span aria-hidden="true">✕</span>Non</button>
-      <button class="act love" type="button" data-deck="2"><span aria-hidden="true">♥</span>Coup de cœur</button>
-      <button class="act yes" type="button" data-deck="1"><span aria-hidden="true">✓</span>Oui</button>
+      <button class="act no" type="button" data-deck="-1"><span aria-hidden="true">${svg("x", 28, 2.6)}</span>Non</button>
+      <button class="act love" type="button" data-deck="2"><span aria-hidden="true">${svg("heart", 24)}</span>Coup de cœur</button>
+      <button class="act yes" type="button" data-deck="1"><span aria-hidden="true">${svg("check", 30, 2.8)}</span>Oui</button>
     </div>
-    <button class="skip" type="button" data-deck="skip">Je ne sais pas, passer</button>`;
+    <div class="dfoot"><span>Ou glisse la carte</span><button type="button" data-deck="skip" aria-label="Je ne sais pas, passer">Passer</button></div>`;
   bindDrag($("#dkBody .card.top"));
 }
 function deckEnd(){
   const top = podium();
-  return `<div class="deck-end"><div class="party" aria-hidden="true">🎉</div><h2>Merci, c'est noté !</h2>
+  return `<div class="deck-end"><span class="party">${svg("spark", 48, 2)}</span><h2 class="dh">Merci, c'est noté !</h2>
     <p class="lede">Tes votes comptent dans le classement. Tu peux les changer quand tu veux, depuis chaque piste.</p>
-    ${top.length ? `<p class="kind">Le top du groupe pour l'instant</p><ol class="top">${top.map(topRow).join("")}</ol>` : ""}
-    <div class="row mt"><button class="btn primary" type="button" data-deck-see>Voir toutes les pistes</button>
-      <button class="btn ghost" type="button" data-deck-again>Revoir mes votes</button></div></div>`;
+    ${top.length ? `<p class="eyebrow">Le top du groupe pour l'instant</p><ol class="top">${top.map(topRow).join("")}</ol>` : ""}
+    <div class="endbtns"><button class="btn primary" type="button" data-deck-see>Voir toutes les pistes</button>
+      <button class="btn line" type="button" data-deck-again>Revoir mes votes</button></div></div>`;
 }
 // Thresholds in px, far enough that a tap or a hesitant drag never counts.
 const intent = (dx, dy) => dy < -110 && Math.abs(dx) < 90 ? 2 : dx > 100 ? 1 : dx < -100 ? -1 : null;
@@ -1014,34 +1504,42 @@ $("#dkBody").addEventListener("click", e => {
   if (b){ decide(b.dataset.deck === "skip" ? "skip" : Number(b.dataset.deck)); return; }
   const w = e.target.closest("[data-who]");
   if (w){ ls.set("nye_me", w.dataset.who); render(); openDeck(false); return; }
-  if (e.target.closest("[data-deck-join]")){ closeDlg($("#dlgDeck")); openPerson(null); return; }
+  if (e.target.closest("[data-deck-join]")){ closeDlg($("#dlgDeck")); openPerson(null, "sur"); return; }
   if (e.target.closest("[data-deck-again]")){ openDeck(true); return; }
-  if (e.target.closest("[data-deck-see]")){ closeDlg($("#dlgDeck")); document.getElementById("pistes").scrollIntoView({behavior:"smooth"}); }
+  if (e.target.closest("[data-deck-see]")){ closeDlg($("#dlgDeck")); location.hash = "pistes"; }
 });
-$("#dlgDeck").addEventListener("keydown", e => {
+// On the document, not the dialog: a vote button re-renders the card and
+// drops focus to <body>, outside the dialog, so its own listener went deaf.
+document.addEventListener("keydown", e => {
   const v = {ArrowRight:1, ArrowLeft:-1, ArrowUp:2}[e.key];
-  if (v != null && $("#dkBody .card.top")){ e.preventDefault(); decide(v); }
+  if (v != null && $("#dlgDeck").open && $("#dkBody .card.top")){ e.preventDefault(); decide(v); }
 });
 $("#dlgDeck").addEventListener("close", () => flushVotes());
 
 /* ================= actions ================= */
+const decisionTodo = d => d.todos.find(x => /choisir entre/i.test(x.text));
 document.addEventListener("click", async e => {
+  if (e.target.closest("[data-action=retry]")){ refresh(false); return; }
   const el = e.target.closest("[data-action]"); if (!el || !state) return;
+  // Checkboxes and radios act on « change »; their click must not act twice.
+  if (el.tagName === "INPUT") return;
   const a = el.dataset.action, id = el.dataset.id;
-  if (el.tagName === "SELECT" || (el.tagName === "INPUT" && el.type === "checkbox")) return;
-  if (a === "rsvp") openPerson(ls.get("nye_me") && state.people.some(p=>p.id===ls.get("nye_me")) ? ls.get("nye_me") : null);
+  if (a === "rsvp") openPerson(null, el.dataset.k);
+  if (a === "edit-me") openPerson(myId());
   if (a === "edit-person") openPerson(id);
   if (a === "add-opt") openOpt(null);
   if (a === "edit-opt") openOpt(id);
+  if (a === "del-opt") deleteOpt(id);
+  if (a === "import-open"){ $("#importErr").textContent = ""; openDlg($("#dlgImport")); }
   if (a === "del-todo"){ const t = state.todos.find(x=>x.id===id); await mutate(d => { d.todos = d.todos.filter(x => x.id !== id); }, t ? "Tâche supprimée" : ""); }
   if (a === "decide"){
     const k = el.dataset.k, label = k==="maison" ? "la maison" : "Paris";
     if (await confirmDlg(`On part sur ${label} ?`, "Tout le monde verra que la décision est prise. Tu pourras annuler si besoin.", "Oui, c'est décidé"))
-      await mutate(d => { d.decision = k; const t = d.todos.find(x => /choisir entre/i.test(x.text)); if (t) t.done = true; }, `C'est décidé : ${label}`);
+      await mutate(d => { d.decision = k; const t = decisionTodo(d); if (t) t.done = true; }, `C'est décidé : ${label}`);
   }
   if (a === "undecide"){
     if (await confirmDlg("Annuler le choix ?", "Les deux pistes redeviennent ouvertes.", "Annuler le choix"))
-      await mutate(d => { d.decision = null; const t = d.todos.find(x => /choisir entre/i.test(x.text)); if (t) t.done = false; }, "Choix annulé");
+      await mutate(d => { d.decision = null; const t = decisionTodo(d); if (t) t.done = false; }, "Choix annulé");
   }
   if (a === "import") importJson();
   if (a === "rate") openDeck(false);
@@ -1051,9 +1549,20 @@ document.addEventListener("click", async e => {
     const v = Number(el.dataset.v), o = state.options.find(x => x.id === id);
     if (o) vote(id, myVote(o) === v ? null : v);
   }
+  if (a === "tab"){ pTab = el.dataset.k; render(); }
+  if (a === "kind"){ pKind[curTab()] = el.dataset.k; render(); }
+  if (a === "back" && route.from === "pistes"){ e.preventDefault(); history.back(); }
+  if (a === "orga-toggle") setOrga(!orga);
+  if (a === "orga-off") setOrga(false);
+  if (a === "share") shareLink();
+  if (a === "copy") copyLink();
 });
 document.addEventListener("keydown", e => {
-  if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".person")){ e.preventDefault(); openPerson(e.target.dataset.id); }
+  // Arrow keys move between the two scenario tabs, as in any tab list.
+  const t = e.target.closest?.('[role="tab"]');
+  if (!t || !state || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) return;
+  e.preventDefault(); pTab = t.dataset.k === "maison" ? "paris" : "maison"; render();
+  document.querySelector(`[role="tab"][data-k="${pTab}"]`)?.focus();
 });
 document.addEventListener("change", async e => {
   const el = e.target;
@@ -1075,14 +1584,37 @@ async function importJson(){
     place:String(x.place||"").slice(0,60), note:String(x.note||"").slice(0,200), state:"idee", by:"import", at:Date.now() }));
   if (!clean.length){ err.textContent = "Aucun élément avec un « title » trouvé."; return; }
   if (await mutate(d => { d.options.push(...clean); }, `${clean.length} piste${clean.length>1?"s":""} importée${clean.length>1?"s":""}`)){
-    $("#importTxt").value = ""; $("#importBox").open = false; location.hash = "pistes";
+    $("#importTxt").value = ""; closeDlg($("#dlgImport")); location.hash = "pistes";
   }
 }
 
-/* nav highlight */
-const tabs = [...document.querySelectorAll("nav.tabs a")];
-const io = new IntersectionObserver(es => { es.forEach(en => { if (en.isIntersecting) tabs.forEach(t => t.classList.toggle("on", t.dataset.tab === en.target.id)); }); }, {rootMargin:"-45% 0px -50% 0px"});
-["qui","pistes","afaire"].forEach(id => io.observe(document.getElementById(id)));
+/* ================= routing ================= */
+// One page, four screens behind the bottom bar, plus a piste's detail. The
+// hash carries the screen so the phone's back button and shared links work.
+const VIEWS = ["accueil", "pistes", "qui", "afaire"];
+let route = {view:"", id:null, from:null};
+const scrollMem = {};
+function parseRoute(){
+  let h = location.hash.slice(1); try{ h = decodeURIComponent(h); }catch(e){}
+  if (h.startsWith("piste/")) return {view:"piste", id:h.slice(6)};
+  return {view: VIEWS.includes(h) ? h : "accueil", id:null};
+}
+function go(){
+  const prev = route, next = parseRoute();
+  const moved = prev.view !== next.view || prev.id !== next.id;
+  if (moved && prev.view) scrollMem[prev.view] = window.scrollY;
+  route = {...next, from: next.view === "piste" ? (prev.view === "piste" ? prev.from : prev.view) : null};
+  if (route.view === "piste" && state){ const o = state.options.find(x => x.id === route.id); if (o) pTab = scenOf(o); }
+  for (const v of document.querySelectorAll(".view")) v.hidden = v.id !== "v-" + route.view;
+  for (const a of document.querySelectorAll(".tabbar a")){
+    if (a.dataset.tab === route.view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  }
+  document.body.classList.toggle("nonav", route.view === "piste");
+  render();
+  if (moved) window.scrollTo(0, prev.view === "piste" && route.view === "pistes" ? scrollMem.pistes || 0 : 0);
+}
+window.addEventListener("hashchange", go);
+try{ history.scrollRestoration = "manual"; }catch(e){}
 
 $("#sync").addEventListener("click", () => refresh(false));
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(true); });
@@ -1090,10 +1622,15 @@ setInterval(() => { if (!document.hidden) refresh(true); else setSync("ok"); }, 
 setInterval(() => { if (!busy && lastSync) setSync("ok"); tick(); }, 30000);
 
 /* ================= boot ================= */
-tick();
+document.querySelectorAll("[data-ico]").forEach(el => { el.outerHTML = svg(el.dataset.ico, Number(el.dataset.s) || 20, Number(el.dataset.w) || 2.2); });
+document.querySelectorAll("dialog").forEach(d => {
+  d.addEventListener("click", e => { if (e.target === d) closeDlg(d); });
+  d.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => closeDlg(d)));
+});
+renderChrome(); go(); tick();
 if (!BLOB_ID){
   // Setup : crée la base une seule fois, puis colle l'identifiant dans BLOB_ID.
-  $("#peopleBox").innerHTML = `<div class="empty"><b>Base pas encore créée</b><button class="btn primary mt" id="mk" type="button">Créer la base</button><p id="mkOut"></p></div>`;
+  $("#v-accueil").innerHTML = `<div class="empty"><b>Base pas encore créée</b><button class="btn primary" id="mk" type="button">Créer la base</button><p id="mkOut"></p></div>`;
   $("#syncTxt").textContent = "Non configuré";
   $("#mk").onclick = async () => {
     try{
