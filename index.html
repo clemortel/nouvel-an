@@ -741,16 +741,24 @@ function normalize(d){
     todos: Array.isArray(d.todos) ? d.todos : []
   };
 }
+// npoint has been seen taking 42 s to answer. Without a cap, `busy` stays
+// set that long and every edit and refresh waits behind it. A request cut
+// off here may still land server-side: retries must stay idempotent.
+const TIMEOUT_MS = 10000;
+function timeoutSignal(){
+  if (typeof AbortSignal.timeout === "function") return AbortSignal.timeout(TIMEOUT_MS);
+  const c = new AbortController(); setTimeout(() => c.abort(), TIMEOUT_MS); return c.signal;
+}
 async function load(){
   // no-store is load-bearing: npoint sends max-age=3600, so without it the
   // browser would replay a stale list for an hour.
-  const r = await fetch(url(), {headers:{Accept:"application/json"}, cache:"no-store"});
+  const r = await fetch(url(), {headers:{Accept:"application/json"}, cache:"no-store", signal:timeoutSignal()});
   if (!r.ok) throw new Error("HTTP " + r.status);
   return normalize(await r.json());
 }
 async function save(d){
   // npoint replaces the whole bin on POST; PUT answers 500.
-  const r = await fetch(url(), {method:"POST", headers:{"Content-Type":"application/json",Accept:"application/json"}, body:JSON.stringify(d)});
+  const r = await fetch(url(), {method:"POST", headers:{"Content-Type":"application/json",Accept:"application/json"}, body:JSON.stringify(d), signal:timeoutSignal()});
   if (!r.ok) throw new Error("HTTP " + r.status);
 }
 function setSync(mode){
@@ -869,9 +877,14 @@ function priceInfo(raw){
 const VOTE = { "-1":"Non", "1":"Oui", "2":"Coup de cœur" };
 const myId = () => { const id = ls.get("nye_me"); return state?.people.some(p => p.id === id) ? id : null; };
 const myVote = o => { const me = myId(); return me ? (o.votes || {})[me] ?? null : null; };
+// Someone who said « Je ne peux pas » neither votes nor counts: the score
+// picks what the people coming will enjoy. Their old votes stay in the
+// document and count again if they switch back to oui or peut-être.
+const outIds = () => new Set(state.people.filter(p => p.status === "non").map(p => p.id));
+const iVote = () => { const me = myId(); return !me || !outIds().has(me); };
 const fmtScore = s => s > 0 ? `+${s}` : String(s);
 function tally(o){
-  const ids = new Set(state.people.map(p => p.id));
+  const out = outIds(), ids = new Set(state.people.filter(p => !out.has(p.id)).map(p => p.id));
   const t = {love:0, yes:0, no:0, score:0, n:0};
   for (const [pid, v] of Object.entries(o.votes || {})){
     if (!ids.has(pid)) continue;
@@ -898,7 +911,7 @@ function setVote(d, pid, oid, v){
 const pending = new Map();
 let flushT = 0;
 function vote(oid, v){
-  const me = myId(); if (!me) return;
+  const me = myId(); if (!me || !iVote()) return;
   pending.set(oid, v); setVote(state, me, oid, v); render();
   clearTimeout(flushT); flushT = setTimeout(flushVotes, 700);
 }
@@ -1070,7 +1083,7 @@ function pisteCard(o){
   return `<li class="pc ${esc(o.state || "idee")}">
     <div class="pc-h"><div class="pc-l">${flag}<a class="pc-t" href="#piste/${encodeURIComponent(o.id)}">${esc(o.title)}</a>
       ${meta ? `<span class="pc-m">${esc(meta)}</span>` : ""}</div>${price}</div>
-    ${canVote ? `<div class="pc-v">${tallyLine(t)}<span class="vbtns" role="group" aria-label="Ton avis sur ${esc(o.title)}">${[-1, 1, 2].map(v => voteBtn(o, v, mine)).join("")}</span></div>` : ""}
+    ${canVote ? `<div class="pc-v">${tallyLine(t)}${iVote() ? `<span class="vbtns" role="group" aria-label="Ton avis sur ${esc(o.title)}">${[-1, 1, 2].map(v => voteBtn(o, v, mine)).join("")}</span>` : ""}</div>` : ""}
   </li>`;
 }
 function renderPistes(){
@@ -1095,7 +1108,7 @@ function renderPistes(){
   const bday = tab === "maison" ? stayLine() : "";
   $("#v-pistes").innerHTML = `
     <header class="vhead"><div><h1>Les pistes</h1><p>${live.length} en lice${me ? ` · tu en as noté ${rated}` : ""}</p></div>
-      <button class="btn primary sm" type="button" data-action="rate">${svg("cards", 18)}Swiper</button></header>
+      ${iVote() ? `<button class="btn primary sm" type="button" data-action="rate">${svg("cards", 18)}Swiper</button>` : ""}</header>
     <div class="tabs2" role="tablist" aria-label="Scénario">${tabBtn("maison")}${tabBtn("paris")}</div>
     <div class="vstack" id="pistes-panel" role="tabpanel" aria-labelledby="tab-${tab}">
       <section class="panel scen ${chosen ? "chosen" : ""} ${dropped ? "dropped" : ""}" aria-labelledby="scen-t">
@@ -1388,6 +1401,7 @@ const fresh = o => state.options.find(x => x.id === o.id) || o;
 
 function openDeck(all){
   const dlg = $("#dlgDeck");
+  if (!iVote()){ toast("Tu as répondu « Je ne peux pas » : tes votes ne comptent pas."); return; }
   if (!myId()) renderWho();
   else {
     const pool = votable().sort(byPlace);
