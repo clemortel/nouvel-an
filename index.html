@@ -12,20 +12,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --night:#1B1640; --night-2:#262057; --night-3:#322A6E;
-  --ink:#F4F0FF; --muted:#ADA6D6; --faint:#7C75AC;
+  --night:#1B1640; --night-2:#262057; --night-3:#322A6E; --night-4:#3E3588;
+  --ink:#F4F0FF; --muted:#B1AAD9; --faint:#958FC2;
   --fizz:#FFCB47; --fizz-ink:#2A1E00;
-  --sure:#6EE7B7; --maybe:#FF9EB5; --off:#8C86B8;
-  --line:rgba(244,240,255,.13);
-  --r-lg:22px; --r-md:14px; --r-sm:10px;
+  --sure:#6EE7B7; --maybe:#FF9EB5; --love:#FF7A9C; --no:#FF9580;
+  --line:rgba(244,240,255,.12); --line-2:rgba(244,240,255,.22);
+  --r-xl:26px; --r-lg:20px; --r-md:14px; --r-sm:10px;
   --pad:clamp(18px,5vw,28px);
+  --lift:0 20px 45px -22px rgba(6,3,28,.9);
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--night);color:var(--ink);
   font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:16px;line-height:1.45;
   font-variation-settings:"wdth" 100;
-  padding-bottom:calc(96px + env(safe-area-inset-bottom));}
+  padding-bottom:calc(104px + env(safe-area-inset-bottom));}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
   background:
     radial-gradient(1px 1px at 12% 18%,#fff8 50%,transparent 51%),
@@ -34,7 +35,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
     radial-gradient(1px 1px at 31% 44%,#fff5 50%,transparent 51%),
     radial-gradient(1px 1px at 90% 52%,#fff5 50%,transparent 51%),
     radial-gradient(1.5px 1.5px at 8% 70%,#ffcb4766 50%,transparent 51%),
-    radial-gradient(1px 1px at 52% 86%,#fff4 50%,transparent 51%);}
+    radial-gradient(1px 1px at 52% 86%,#fff4 50%,transparent 51%),
+    radial-gradient(70% 40% at 90% -8%,rgba(255,203,71,.13),transparent 70%),
+    radial-gradient(80% 45% at -10% -5%,rgba(124,92,255,.25),transparent 70%);}
 a{color:var(--fizz)}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--fizz);outline-offset:2px;border-radius:6px}
@@ -42,127 +45,172 @@ button,input,select,textarea{font:inherit;color:inherit}
 .hidden{display:none!important}
 
 /* ---------- hero ---------- */
-header.hero{padding:calc(22px + env(safe-area-inset-top)) 0 8px}
-.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:14px}
-.sync{display:inline-flex;align-items:center;gap:8px;background:none;border:0;color:var(--muted);padding:6px 0;cursor:pointer;font-size:14px}
+header.hero{padding:calc(18px + env(safe-area-inset-top)) 0 4px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:14px;min-height:44px}
+#whoami{font-weight:600;color:var(--ink)}
+.sync{display:inline-flex;align-items:center;gap:8px;background:none;border:0;color:var(--muted);padding:10px 0;cursor:pointer;font-size:14px;margin-left:auto}
 .sync .dot{width:8px;height:8px;border-radius:50%;background:var(--sure)}
 .sync.busy .dot{background:var(--fizz);animation:pulse 1s infinite}
 .sync.err .dot{background:var(--maybe)}
 @keyframes pulse{50%{opacity:.3}}
-h1{margin:18px 0 0;font-size:clamp(40px,12vw,68px);line-height:.92;font-weight:800;
-  font-variation-settings:"wdth" 78;letter-spacing:-.01em}
+h1{margin:14px 0 0;font-size:clamp(44px,13vw,72px);line-height:.9;font-weight:800;
+  font-variation-settings:"wdth" 76;letter-spacing:-.015em}
 h1 .yr{display:block;color:var(--fizz)}
-.countdown{margin:10px 0 0;color:var(--muted);font-size:17px}
+.countdown{display:inline-flex;align-items:center;gap:9px;margin:16px 0 0;padding:7px 14px;border-radius:99px;
+  background:rgba(255,203,71,.1);border:1px solid rgba(255,203,71,.28);color:var(--fizz);font-weight:600;font-size:15px}
+.countdown::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--fizz);flex:none}
 
-.headcount{margin:26px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 18px;align-items:end}
+.headcount{margin:28px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 18px;align-items:end}
 .headcount .big{font-size:clamp(88px,30vw,150px);line-height:.8;font-weight:800;font-variation-settings:"wdth" 75;
   color:var(--ink);font-variant-numeric:tabular-nums;grid-row:span 2}
-.headcount .lab{font-size:20px;font-weight:600;line-height:1.15}
+.headcount .lab{font-size:21px;font-weight:700;line-height:1.15}
 .headcount .sub{color:var(--muted);font-size:15px}
 .heads{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 0}
-.head{display:inline-flex;align-items:center;height:30px;padding:0 11px;border-radius:99px;font-size:14px;font-weight:600;
+.head{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:99px;font-size:14px;font-weight:600;
   background:var(--night-2);border:1px solid var(--line)}
-.head.sure{background:rgba(110,231,183,.14);border-color:rgba(110,231,183,.4)}
+.head.sure{background:rgba(110,231,183,.13);border-color:rgba(110,231,183,.38)}
 .head.maybe{border-style:dashed;border-color:rgba(255,158,181,.55);color:#FFD3DD}
 .head.guest{font-weight:500}
 
+/* ---------- rate call-to-action ---------- */
+.rate{margin:26px 0 0;display:grid;grid-template-columns:auto 1fr;gap:14px 16px;align-items:center;padding:16px 18px;
+  border-radius:var(--r-lg);background:linear-gradient(135deg,var(--night-3),var(--night-2));border:1px solid var(--line-2);box-shadow:var(--lift)}
+.rate b{display:block;font-size:19px;font-weight:800;font-variation-settings:"wdth" 85;line-height:1.15}
+.rate .rt span{display:block;color:var(--muted);font-size:14.5px;margin-top:3px}
+.rate > .btn{grid-column:1/-1}
+@media (min-width:520px){.rate{grid-template-columns:auto 1fr auto}.rate > .btn{grid-column:auto}}
+.rate.done{grid-template-columns:1fr auto}
+.rate.done > .btn{grid-column:auto}
+.minis{position:relative;width:44px;height:54px;margin:0 4px}
+.minis i{position:absolute;inset:0;border-radius:9px;border:1.5px solid var(--line-2);background:var(--night-4)}
+.minis i:nth-child(1){transform:rotate(-13deg) translateX(-5px);background:var(--night-3)}
+.minis i:nth-child(2){transform:rotate(9deg) translateX(5px)}
+.minis i:nth-child(3){background:var(--fizz);border-color:var(--fizz);transform:rotate(-2deg)}
+
 /* ---------- status ---------- */
-.status{margin:26px 0 0;padding:18px 20px;border-radius:var(--r-lg);background:var(--fizz);color:var(--fizz-ink)}
+.status{margin:16px 0 0;padding:18px 20px;border-radius:var(--r-lg);background:var(--fizz);color:var(--fizz-ink)}
 .status h2{margin:0;font-size:22px;line-height:1.15;font-weight:800;font-variation-settings:"wdth" 85}
 .status p{margin:6px 0 0;font-size:15.5px}
 .status .next{margin-top:12px;padding-top:12px;border-top:1px solid rgba(42,30,0,.18);display:flex;gap:10px;align-items:baseline}
 .status .next b{white-space:nowrap}
+.status .toplab{margin:12px 0 0;padding-top:12px;border-top:1px solid rgba(42,30,0,.18);font-weight:800;font-size:15px}
+ol.top{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;counter-reset:r}
+ol.top li{display:flex;align-items:baseline;gap:10px;counter-increment:r;font-size:15.5px}
+ol.top li::before{content:counter(r);flex:none;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;
+  font-size:13px;font-weight:800;background:rgba(42,30,0,.12)}
+ol.top .tt{flex:1;min-width:0;font-weight:600}
+ol.top .sc{font-weight:800;font-variant-numeric:tabular-nums}
 
 /* ---------- nav ---------- */
-nav.tabs{position:sticky;top:0;z-index:5;margin:22px calc(var(--pad) * -1) 0;padding:10px var(--pad);
-  background:rgba(27,22,64,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav.tabs{position:sticky;top:0;z-index:5;margin:24px calc(var(--pad) * -1) 0;padding:10px var(--pad);
+  background:rgba(27,22,64,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 nav.tabs ul{list-style:none;margin:0;padding:0;display:flex;gap:6px}
-nav.tabs a{display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:99px;text-decoration:none;color:var(--muted);font-weight:600;font-size:15px}
+nav.tabs a{display:flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border-radius:99px;text-decoration:none;color:var(--muted);font-weight:600;font-size:15px}
 nav.tabs a.on{background:var(--night-3);color:var(--ink)}
 nav.tabs .n{font-size:12.5px;min-width:20px;height:20px;border-radius:10px;background:var(--line);display:inline-grid;place-items:center;padding:0 6px;color:var(--ink)}
 
-section{padding-top:34px;scroll-margin-top:62px}
-section > h2{margin:0;font-size:30px;font-weight:800;font-variation-settings:"wdth" 82;line-height:1}
-section > .lede{margin:6px 0 0;color:var(--muted)}
+section{padding-top:38px;scroll-margin-top:62px}
+section > h2{margin:0;font-size:32px;font-weight:800;font-variation-settings:"wdth" 80;line-height:1}
+section > .lede{margin:8px 0 0;color:var(--muted)}
 
 /* ---------- people ---------- */
-.people{list-style:none;margin:18px 0 0;padding:0}
+.people{list-style:none;margin:10px 0 0;padding:0}
 .person{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
 .person:last-child{border-bottom:0}
-.av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;color:var(--night)}
+.av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;color:var(--night);flex:none}
 .person .nm{font-weight:700;font-size:17px;line-height:1.2}
-.person .nm small{font-weight:500;color:var(--fizz);font-size:13px;margin-left:6px}
+.person .nm small{font-weight:600;color:var(--fizz);font-size:13px;margin-left:6px}
 .person .meta{color:var(--muted);font-size:14px;margin-top:2px}
 .person .note{color:var(--faint);font-size:14px;font-style:italic;margin-top:2px}
 .pill{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:99px;font-size:13px;font-weight:700;white-space:nowrap}
 .pill.sure{background:rgba(110,231,183,.16);color:var(--sure)}
 .pill.maybe{background:rgba(255,158,181,.14);color:var(--maybe)}
-.group-lab{margin:22px 0 0;color:var(--muted);font-size:15px;font-weight:600}
+.group-lab{margin:22px 0 0;color:var(--muted);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
 
-.empty{margin:18px 0 0;padding:22px;border:1.5px dashed var(--line);border-radius:var(--r-lg);color:var(--muted);text-align:center}
+.empty{margin:18px 0 0;padding:22px;border:1.5px dashed var(--line-2);border-radius:var(--r-lg);color:var(--muted);text-align:center}
 .empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:4px}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px;border-radius:99px;border:0;
   font-weight:700;font-size:16px;cursor:pointer;text-decoration:none;white-space:nowrap}
 .btn.primary{background:var(--fizz);color:var(--fizz-ink)}
-.btn.ghost{background:var(--night-2);color:var(--ink);border:1px solid var(--line)}
+.btn.ghost{background:var(--night-2);color:var(--ink);border:1px solid var(--line-2)}
 .btn.danger{background:none;color:var(--maybe);padding:0 8px}
-.btn.small{height:38px;padding:0 15px;font-size:15px}
+.btn.small{height:40px;padding:0 16px;font-size:15px}
 .btn:active{transform:scale(.98)}
-.btn[disabled]{opacity:.5;cursor:default}
+.btn[disabled]{opacity:.4;cursor:default}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .mt{margin-top:16px}
 
 .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:8;
-  height:56px;padding:0 26px;font-size:17px;box-shadow:0 10px 30px rgba(10,6,40,.6)}
+  height:56px;padding:0 28px;font-size:17px;box-shadow:0 12px 32px rgba(10,6,40,.65)}
 .fab:active{transform:translateX(-50%) scale(.98)}
 
 /* ---------- scenarios ---------- */
-.scen{margin:18px 0 0;border-radius:var(--r-lg);background:var(--night-2);border:1px solid var(--line);overflow:hidden}
-.scen.chosen{border-color:var(--fizz);box-shadow:0 0 0 1px var(--fizz) inset}
+.scen{margin:18px 0 0;border-radius:var(--r-xl);background:var(--night-2);border:1px solid var(--line);overflow:hidden;box-shadow:var(--lift)}
+.scen.chosen{border-color:var(--fizz);box-shadow:0 0 0 1px var(--fizz) inset,var(--lift)}
 .scen.dropped{opacity:.55}
-.scen-head{padding:18px 20px 16px}
+.scen-head{padding:20px 20px 18px;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
 .scen-head .t{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.scen h3{margin:0;font-size:24px;line-height:1.1;font-weight:800;font-variation-settings:"wdth" 85}
+.scen h3{margin:0;font-size:25px;line-height:1.1;font-weight:800;font-variation-settings:"wdth" 84}
 .scen .who{margin:6px 0 0;color:var(--muted);font-size:15px}
 .scen ul.facts{margin:12px 0 0;padding:0 0 0 18px;font-size:15px}
 .scen ul.facts li{margin:3px 0}
-.votes{margin:14px 0 0}
+.votes{margin:16px 0 0}
 .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--fizz);border-radius:4px;transition:width .4s}
-.votes .vl{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:var(--fizz);border-radius:4px;transition:width .4s}
+.votes .vl{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--muted);margin-top:8px}
 .badge{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:99px;background:var(--fizz);color:var(--fizz-ink);font-size:13px;font-weight:800;white-space:nowrap}
-.scen-body{border-top:1px solid var(--line);padding:6px 20px 18px}
-.kind{margin:14px 0 0;font-size:15px;font-weight:700;color:var(--muted)}
-.opts{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
-.opt{padding:13px 14px;border-radius:var(--r-md);background:var(--night);border:1px solid var(--line)}
-.opt.favori{border-color:rgba(255,203,71,.6)}
-.opt.reserve{border-color:var(--sure);background:rgba(110,231,183,.08)}
-.opt.ecarte{opacity:.5}
+.scen-body{border-top:1px solid var(--line);padding:4px 14px 18px}
+.kind{margin:18px 6px 0;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.opts{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px}
+.opt{padding:14px 15px;border-radius:var(--r-md);background:rgba(12,9,36,.5);border:1px solid var(--line)}
+.opt.favori{border-color:rgba(255,203,71,.55)}
+.opt.reserve{border-color:var(--sure);background:rgba(110,231,183,.07)}
+.opt.ecarte{opacity:.6}
 .opt.ecarte .ot{text-decoration:line-through}
-.opt .ot{font-weight:700;font-size:16px;line-height:1.25}
-.opt .om{color:var(--muted);font-size:14px;margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 12px}
-.opt .on{color:var(--ink);opacity:.85;font-size:14px;margin-top:6px}
-.opt .oa{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
-.opt select{background:var(--night-2);border:1px solid var(--line);border-radius:99px;height:34px;padding:0 12px;font-size:14px;font-weight:600}
+.ohead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.opt .ot{font-weight:700;font-size:16.5px;line-height:1.25}
+.sc{flex:none;min-width:40px;height:26px;padding:0 9px;border-radius:99px;display:inline-grid;place-items:center;
+  font-size:13.5px;font-weight:800;background:var(--line);font-variant-numeric:tabular-nums}
+.sc.pos{background:rgba(110,231,183,.16);color:var(--sure)}
+.sc.neg{background:rgba(255,149,128,.15);color:var(--no)}
+dl.info{margin:10px 0 0;display:grid;gap:4px}
+dl.info div{display:grid;grid-template-columns:80px 1fr;gap:10px;font-size:14px}
+dl.info dt{color:var(--faint);font-weight:600}
+dl.info dd{margin:0}
+dl.info dd.na{color:var(--faint);font-style:italic}
+.opt .onote{color:var(--muted);font-size:14px;margin-top:8px}
+.ovote{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.tally{color:var(--muted);font-size:13.5px;font-variant-numeric:tabular-nums}
+.vbtns{display:flex;gap:6px}
+.vb{width:46px;height:40px;border-radius:99px;border:1.5px solid var(--line-2);background:none;color:var(--muted);
+  font-size:16px;font-weight:800;cursor:pointer;display:grid;place-items:center}
+.vb.on[data-v="-1"]{background:var(--no);border-color:var(--no);color:#2B0A04}
+.vb.on[data-v="1"]{background:var(--sure);border-color:var(--sure);color:#06291C}
+.vb.on[data-v="2"]{background:var(--love);border-color:var(--love);color:#3A0614}
+.opt .oa{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}
+.opt select{background:var(--night-2);border:1px solid var(--line-2);border-radius:99px;height:40px;padding:0 12px;font-size:14px;font-weight:600}
 .opt a{font-size:14px;font-weight:600}
-.none{color:var(--faint);font-size:14px;margin:6px 0 0}
+.none{color:var(--faint);font-size:14px;margin:6px 6px 0}
+details.drop{margin:18px 6px 0}
+details.drop summary{cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;min-height:32px}
+details.drop .opts{margin-top:8px}
 
 /* ---------- todos ---------- */
 .todos{list-style:none;margin:16px 0 0;padding:0}
-.todo{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.todo{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .todo input[type=checkbox]{appearance:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--muted);margin:0;cursor:pointer;display:grid;place-items:center}
 .todo input[type=checkbox]:checked{background:var(--sure);border-color:var(--sure)}
 .todo input[type=checkbox]:checked::after{content:"";width:7px;height:12px;border:solid var(--night);border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
 .todo.done .tt{color:var(--faint);text-decoration:line-through}
 .todo .tw{color:var(--muted);font-size:13.5px}
-.x{background:none;border:0;color:var(--faint);font-size:22px;width:36px;height:36px;border-radius:50%;cursor:pointer;line-height:1}
+.x{background:none;border:0;color:var(--faint);font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;line-height:1;flex:none}
 .addline{display:flex;gap:8px;margin-top:14px}
 .addline input{flex:1;min-width:0}
 
 /* ---------- forms ---------- */
-input[type=text],input[type=url],input[type=number],textarea,select.f{width:100%;background:var(--night);border:1.5px solid var(--line);border-radius:var(--r-sm);
+input[type=text],input[type=url],input[type=number],textarea,select.f{width:100%;background:var(--night);border:1.5px solid var(--line-2);border-radius:var(--r-sm);
   padding:12px 14px;font-size:16px;outline:none}
 input:focus,textarea:focus,select.f:focus{border-color:var(--fizz)}
 textarea{resize:vertical;min-height:80px}
@@ -171,7 +219,7 @@ label.l span{font-weight:500;color:var(--muted)}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .seg input{position:absolute;opacity:0;pointer-events:none}
 .seg label{flex:1;min-width:max-content;display:flex;align-items:center;justify-content:center;height:44px;padding:0 14px;border-radius:99px;
-  border:1.5px solid var(--line);font-weight:600;cursor:pointer;font-size:15px}
+  border:1.5px solid var(--line-2);font-weight:600;cursor:pointer;font-size:15px}
 .seg input:checked + label{background:var(--ink);color:var(--night);border-color:var(--ink)}
 .seg input:focus-visible + label{outline:3px solid var(--fizz);outline-offset:2px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
@@ -180,7 +228,7 @@ label.l span{font-weight:500;color:var(--muted)}
 dialog{border:0;padding:0;background:var(--night-2);color:var(--ink);width:min(560px,100%);max-width:100%;max-height:92vh;border-radius:24px 24px 0 0;
   margin:auto auto 0;box-shadow:0 -10px 50px rgba(0,0,0,.5)}
 @media (min-width:640px){dialog{border-radius:24px;margin:auto}}
-dialog::backdrop{background:rgba(8,5,30,.65)}
+dialog::backdrop{background:rgba(8,5,30,.7)}
 dialog[open]{animation:sheet .22s ease-out}
 @keyframes sheet{from{transform:translateY(30px);opacity:0}}
 dialog form{padding:22px var(--pad) calc(22px + env(safe-area-inset-bottom));overflow:auto;max-height:92vh}
@@ -190,13 +238,73 @@ dialog .foot{display:flex;justify-content:space-between;align-items:center;gap:1
 dialog .foot .row{margin-left:auto}
 .err-msg{color:var(--maybe);font-size:14px;margin-top:8px;min-height:1px}
 
+/* ---------- swipe deck ---------- */
+dialog.deck{width:100%;max-width:520px;height:100%;height:100dvh;max-height:100dvh;margin:0 auto;border-radius:0;background:var(--night);box-shadow:none}
+@media (min-width:640px){dialog.deck{height:min(800px,94vh);max-height:94vh;margin:auto;border-radius:28px;border:1px solid var(--line-2)}}
+.deck-in{display:flex;flex-direction:column;height:100%;padding:calc(10px + env(safe-area-inset-top)) var(--pad) calc(14px + env(safe-area-inset-bottom))}
+.deck-top{display:grid;grid-template-columns:44px 1fr 96px;gap:12px;align-items:center}
+.deck-top .btn{justify-self:end;padding:0 12px}
+.deck-prog{display:grid;gap:7px;font-size:13.5px;color:var(--muted);font-weight:600;text-align:center;font-variant-numeric:tabular-nums}
+.deck-body{flex:1;display:flex;flex-direction:column;min-height:0}
+.stack{position:relative;flex:1;min-height:360px;margin:12px 0 18px}
+.card{position:absolute;inset:0;display:flex;flex-direction:column;padding:22px 20px 18px;border-radius:var(--r-xl);
+  background:linear-gradient(165deg,var(--night-4) 0%,var(--night-2) 72%);border:1px solid var(--line-2);
+  box-shadow:0 30px 60px -28px rgba(4,2,20,.95);touch-action:none;user-select:none;-webkit-user-select:none;
+  cursor:grab;overflow:hidden;transition:transform .25s ease-out;will-change:transform}
+.card:active{cursor:grabbing}
+.card.next{transform:translateY(16px) scale(.94);opacity:.5;pointer-events:none}
+.card .tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-flex;align-items:center;height:28px;padding:0 11px;border-radius:99px;background:rgba(255,255,255,.08);font-size:13.5px;font-weight:600}
+.tag.fav{background:rgba(255,203,71,.16);color:var(--fizz)}
+.card h3{margin:16px 0 0;font-size:clamp(26px,7.5vw,32px);line-height:1.05;font-weight:800;font-variation-settings:"wdth" 82}
+.card dl.info{margin-top:18px;gap:0}
+.card dl.info div{grid-template-columns:96px 1fr;font-size:15.5px;padding:10px 0;border-bottom:1px solid var(--line)}
+.card dl.info div:first-child{border-top:1px solid var(--line)}
+.cnote{margin:14px 0 0;color:var(--muted);font-size:15px}
+.cfoot{margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14.5px}
+.cfoot a{font-weight:700;padding:10px 0}
+.was{color:var(--faint);font-size:13.5px}
+.stamp{position:absolute;top:70px;padding:6px 14px;border:3px solid;border-radius:12px;font-weight:800;font-size:26px;
+  text-transform:uppercase;letter-spacing:.04em;pointer-events:none;font-variation-settings:"wdth" 85;background:rgba(27,22,64,.75)}
+.s-yes{left:16px;color:var(--sure);transform:rotate(-12deg);opacity:var(--o-yes,0)}
+.s-no{right:16px;color:var(--no);transform:rotate(12deg);opacity:var(--o-no,0)}
+.s-love{left:50%;top:auto;bottom:84px;transform:translateX(-50%) rotate(-4deg);color:var(--love);opacity:var(--o-love,0);white-space:nowrap}
+.acts{display:flex;justify-content:center;align-items:flex-end;gap:22px}
+.act{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;padding:0}
+.act span{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font-size:27px;border:2px solid;background:var(--night-2);transition:transform .15s}
+.act:active span{transform:scale(.92)}
+.act.no span{color:var(--no);border-color:rgba(255,149,128,.55)}
+.act.yes span{color:var(--sure);border-color:rgba(110,231,183,.55)}
+.act.love span{width:56px;height:56px;font-size:23px;color:var(--love);border-color:rgba(255,122,156,.55)}
+.skip{display:block;margin:8px auto 0;background:none;border:0;color:var(--faint);font-weight:600;font-size:14px;cursor:pointer;padding:0 14px;min-height:44px}
+.who-pick,.deck-end{margin:auto 0;padding:12px 0}
+.who-list{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+.who-btn{display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 18px 0 7px;border-radius:99px;border:1px solid var(--line-2);
+  background:var(--night-2);font-weight:700;font-size:16px;cursor:pointer}
+.who-btn .av{width:36px;height:36px;font-size:15px}
+.deck-end .party{font-size:56px;line-height:1}
+.deck-end h2{margin-top:12px}
+.deck-end .kind{margin:22px 0 0}
+.deck ol.top li::before{background:var(--night-3)}
+.cnote{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-height:700px){
+  .card{padding:18px 18px 14px}
+  .card h3{margin-top:12px;font-size:24px}
+  .card dl.info{margin-top:12px}
+  .card dl.info div{padding:7px 0;font-size:15px}
+  .cnote{font-size:14px;margin-top:10px;-webkit-line-clamp:4}
+  .stack{min-height:300px;margin:8px 0 12px}
+  .act span{width:56px;height:56px;font-size:23px}
+  .act.love span{width:48px;height:48px;font-size:20px}
+}
+
 .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-80px);z-index:20;background:var(--ink);color:var(--night);
   padding:11px 18px;border-radius:99px;font-weight:700;font-size:15px;transition:transform .25s;max-width:90vw;text-align:center}
 .toast.show{transform:translate(-50%,0)}
 .banner{margin:16px 0 0;padding:12px 16px;border-radius:var(--r-md);background:rgba(255,158,181,.14);color:#FFD3DD;font-size:15px}
 
-details.imp{margin:40px 0 0;border-top:1px solid var(--line);padding-top:18px;color:var(--muted)}
-details.imp summary{cursor:pointer;font-weight:600}
+details.imp{margin:44px 0 0;border-top:1px solid var(--line);padding-top:18px;color:var(--muted)}
+details.imp summary{cursor:pointer;font-weight:600;min-height:32px}
 details.imp pre{background:var(--night-2);padding:12px;border-radius:var(--r-sm);overflow:auto;font-size:12.5px;color:var(--ink)}
 footer{margin:34px 0 0;color:var(--faint);font-size:13.5px}
 
@@ -221,6 +329,8 @@ footer{margin:34px 0 0;color:var(--faint);font-size:13.5px}
     </div>
     <div class="heads" id="heads"></div>
 
+    <div id="rateBox"></div>
+
     <div class="status" id="status"></div>
     <div id="banner"></div>
   </header>
@@ -242,7 +352,7 @@ footer{margin:34px 0 0;color:var(--faint);font-size:13.5px}
 
     <section id="pistes">
       <h2>Les pistes</h2>
-      <p class="lede">Deux options sur la table. Les logements et soirées repérés sont rangés sous chaque piste.</p>
+      <p class="lede">Deux options sur la table. Sous chaque piste, les logements et soirées repérés, classés par score : ✓ +1, ♥ +2, ✕ −1.</p>
       <div id="scenBox"></div>
       <div class="row mt"><button class="btn ghost" type="button" data-action="add-opt">+ Ajouter un logement ou une soirée</button></div>
     </section>
@@ -259,7 +369,7 @@ footer{margin:34px 0 0;color:var(--faint);font-size:13.5px}
 
     <details class="imp" id="importBox">
       <summary>Importer des recherches en lot</summary>
-      <p>Colle une liste au format JSON (par exemple générée par Claude). Chaque élément devient une piste.</p>
+      <p>Colle une liste au format JSON. Chaque élément devient une piste.</p>
       <pre>[{"scenario":"paris","kind":"soiree","title":"Dîner + club","place":"Paris 11e","price":"85 €/pers","capacity":"places dispo","url":"https://…","note":"open bar après minuit"}]</pre>
       <p>scenario : <b>maison</b> ou <b>paris</b> · kind : <b>logement</b>, <b>soiree</b> ou <b>autre</b></p>
       <textarea id="importTxt" placeholder="Colle le JSON ici"></textarea>
@@ -358,6 +468,18 @@ footer{margin:34px 0 0;color:var(--faint);font-size:13.5px}
   </form>
 </dialog>
 
+<!-- Swipe deck -->
+<dialog id="dlgDeck" class="deck" aria-label="Noter les pistes">
+  <div class="deck-in">
+    <div class="deck-top">
+      <button class="x" type="button" data-close aria-label="Fermer">×</button>
+      <div class="deck-prog"><span id="dkCount"></span><div class="bar"><i id="dkBar"></i></div></div>
+      <button class="btn ghost small" type="button" id="dkUndo">↺ Retour</button>
+    </div>
+    <div class="deck-body" id="dkBody"></div>
+  </div>
+</dialog>
+
 <script>
 /* ================= config ================= */
 const BLOB_ID = "890612cf8f6f2575b11e"; // rempli après création de la base
@@ -375,7 +497,7 @@ const SEED = {
     paris:{ title:"Soirée à Paris", who:"Une dizaine de personnes, le groupe d'Amel reste à confirmer",
       facts:["Un logement à réserver pour dormir sur place","Une soirée du 31 : resto + boîte, ou une soirée qui fait les deux","Logement : 45 à 125 € par personne la nuit · soirée : de 20 à 230 € par personne"] }
   },
-  people:[{"id": "p1", "name": "Clement", "guests": [], "status": "sur", "pref": "egal", "note": "", "at": 0}, {"id": "p2", "name": "Antoine", "guests": ["Copine d'Antoine"], "status": "sur", "pref": "egal", "note": "", "at": 0}, {"id": "p3", "name": "Steven", "guests": [], "status": "sur", "pref": "egal", "note": "", "at": 0}, {"id": "p4", "name": "Guitou", "guests": [], "status": "sur", "pref": "egal", "note": "", "at": 0}, {"id": "p5", "name": "Agas", "guests": [], "status": "sur", "pref": "egal", "note": "", "at": 0}, {"id": "p6", "name": "Mathis", "guests": ["Copine de Mathis"], "status": "sur", "pref": "egal", "note": "", "at": 0}, {"id": "p7", "name": "Simon", "guests": ["Copine de Simon"], "status": "sur", "pref": "egal", "note": "", "at": 0}],
+  people:[{"id": "p1", "name": "Clémiche", "guests": [], "status": "sur", "pref": "egal", "note": "", "at": 0}],
   options:[{"id": "m1", "scenario": "maison", "kind": "logement", "title": "Salle de réception + gîtes", "url": "https://www.airbnb.fr/rooms/945376083340081498", "price": "2 340 € (≈146 €/pers à 16)", "capacity": "6 ch · 25 lits", "place": "Campbon, ~25 min de Saint-Nazaire", "note": "Du 30/12 au 1/1. Grande salle pour la soirée, annulation gratuite jusqu'au 29/12. Le meilleur rapport fête/prix trouvé.", "state": "favori", "by": "Claude", "at": 0}, {"id": "m2", "scenario": "maison", "kind": "logement", "title": "Superbe maison 11 chambres", "url": "https://www.airbnb.fr/rooms/834750970812284904", "price": "2 431 € (≈152 €/pers à 16)", "capacity": "11 ch · 19 lits", "place": "Nantes", "note": "Du 30/12 au 1/1, annulation gratuite, très bien notée (4,97). En ville : moins « campagne ».", "state": "idee", "by": "Claude", "at": 0}, {"id": "m3", "scenario": "maison", "kind": "logement", "title": "Maison piscine chauffée + tennis", "url": "https://www.airbnb.fr/rooms/19371889", "price": "2 595 € (≈162 €/pers à 16)", "capacity": "9 ch · 12 lits", "place": "Herbignac, 15 min de La Baule", "note": "Du 30/12 au 1/1. Seulement 12 lits pour 15-16 : prévoir des matelas.", "state": "idee", "by": "Claude", "at": 0}, {"id": "m4", "scenario": "maison", "kind": "logement", "title": "Domaine du Chalonge", "url": "https://www.airbnb.fr/rooms/43800313", "price": "2 860 € (≈179 €/pers à 16)", "capacity": "10 ch · 33 lits", "place": "Héric, nord de Nantes", "note": "Du 30/12 au 1/1, annulation gratuite. Large mais plus loin de Saint-Nazaire (~1 h).", "state": "idee", "by": "Claude", "at": 0}, {"id": "m5", "scenario": "maison", "kind": "logement", "title": "Villa de la Boutinardière (en direct)", "url": "https://www.grandsgites.com/gite-44-villa-boutinardiere-4367.htm", "price": "≈2 100 € + 450 € ménage", "capacity": "18 pers · 8 ch", "place": "Pornic", "note": "Tarif week-end férié 1 050 €/nuit, sans commission. Dispo du réveillon à demander : 02 40 82 05 68.", "state": "idee", "by": "Claude", "at": 0}, {"id": "m6", "scenario": "maison", "kind": "logement", "title": "La Grange, Saint-Nazaire", "url": "https://www.greengo.voyage/hote/la-grange-maison-entre-terre-et-mer", "price": "dès 363 €/nuit + 260 € ménage", "capacity": "15 pers", "place": "Saint-Nazaire", "note": "Écartée : soirées interdites, et 15 places max.", "state": "ecarte", "by": "Claude", "at": 0}, {"id": "m7", "scenario": "maison", "kind": "logement", "title": "Manoir de la Simonais", "url": "https://www.grandsgites.com/gite-44-manoir-simonais-4682.htm", "price": "2 900 € le week-end", "capacity": "24 pers", "place": "Donges", "note": "Écarté : fêtes avec musique amplifiée interdites, et week-ends de vacances scolaires exclus.", "state": "ecarte", "by": "Claude", "at": 0}, {"id": "m8", "scenario": "maison", "kind": "logement", "title": "Le Clos Angèle", "url": "https://www.grandsgites.com/gite-44-le-clos-angele-7289.htm", "price": "1 780 € le week-end (hors fêtes)", "capacity": "20 pers + salle", "place": "Malville", "note": "Écarté : à Noël et au Nouvel An, location à la semaine uniquement.", "state": "ecarte", "by": "Claude", "at": 0}, {"id": "p1", "scenario": "paris", "kind": "logement", "title": "Maison familiale 5 chambres", "url": "https://www.airbnb.fr/rooms/878843464652558052", "price": "457 € (≈46 €/pers)", "capacity": "5 ch · 6 lits", "place": "Nanterre, RER A La Défense", "note": "Nuit du 31/12 au 1/1, annulation gratuite. De loin le moins cher, mais seulement 6 lits pour 10 : à vérifier.", "state": "idee", "by": "Claude", "at": 0}, {"id": "p2", "scenario": "paris", "kind": "logement", "title": "Pavillon avec jardin", "url": "https://www.airbnb.fr/rooms/1143987948855859191", "price": "1 185 € (≈119 €/pers)", "capacity": "4 ch · 10 lits", "place": "Bagneux, 12 min de Paris", "note": "Nuit du 31/12 au 1/1, annulation gratuite. Près d'Arcueil.", "state": "idee", "by": "Claude", "at": 0}, {"id": "p3", "scenario": "paris", "kind": "logement", "title": "Appartement double 210 m²", "url": "https://www.airbnb.fr/rooms/977441964371200757", "price": "1 195 € (≈120 €/pers)", "capacity": "9 ch · 9 lits doubles", "place": "Meudon", "note": "Nuit du 31/12 au 1/1, annulation gratuite. Très bien noté (5,0).", "state": "idee", "by": "Claude", "at": 0}, {"id": "p4", "scenario": "paris", "kind": "logement", "title": "République, 6 chambres", "url": "https://www.airbnb.fr/rooms/13243111", "price": "1 236 € (≈124 €/pers)", "capacity": "6 ch · 9 lits · 3 sdb", "place": "Paris 10e/11e", "note": "Nuit du 31/12 au 1/1. Dans Paris, à pied des bars. Pas d'annulation gratuite affichée.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s1", "scenario": "paris", "kind": "soiree", "title": "Paris New Year 2027 (tout inclus)", "url": "https://www.parisbouge.com/events/336381", "price": "dès 20 €", "capacity": "20h–5h", "place": "California Avenue, Paris 4e", "note": "Buffet + open bar + DJs, on peut sortir voir Paris à minuit et revenir. Le moins cher qui fait « dîner léger + club ».", "state": "idee", "by": "Claude", "at": 0}, {"id": "s2", "scenario": "paris", "kind": "soiree", "title": "Réveillon au Duplex : buffet + club", "url": "https://www.cometoparis.com/fre/catalog/nouvel-an-duplex-8004", "price": "150 €/pers", "capacity": "Buffet 19h30, club 23h–4h", "place": "Paris 16e, Étoile", "note": "Open bar champagne pendant le buffet, 3 salles de club. Groupe de +10 : devis possible. Tenue soignée, pièce d'identité.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s3", "scenario": "paris", "kind": "soiree", "title": "Duplex : dîner au Vogue + club", "url": "https://www.cometoparis.com/fre/catalog/nouvel-an-duplex-8004", "price": "190 €/pers", "capacity": "Dîner assis puis club", "place": "Paris 16e", "note": "Formule affichée « plus disponible » à la date : à vérifier.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s4", "scenario": "paris", "kind": "soiree", "title": "Les Romantiques : dîner + DJ", "url": "https://www.cometoparis.com/fre/restaurant-les-romantiques/reveillon-nouvel-an-m9001962", "price": "229 € (19h) / 269 € (21h)", "capacity": "Dîner, DJ set, soirée dansante", "place": "Place de l'Alma, 8e", "note": "Champagne inclus, on reste danser sur place.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s5", "scenario": "paris", "kind": "soiree", "title": "Le Cardinal + Cardi Club", "url": "https://www.cometoparis.com/fre/soiree-nouvel-an-paris-brasserie-le-cardinal-m9001161", "price": "220 €/pers", "capacity": "Dîner + club jusqu'à l'aube", "place": "Paris", "note": "Thème Années folles, dîner et club au même endroit.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s6", "scenario": "paris", "kind": "soiree", "title": "Flashback Fever (années 2000)", "url": "https://www.parisbouge.com/events/336383", "price": "25 €", "capacity": "20h–5h", "place": "Club en plein Paris", "note": "100 % tubes des années 2000, uniquement en prévente. Formule Deluxe à 40 € : entrée + 5 boissons + snacks.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s7", "scenario": "paris", "kind": "soiree", "title": "Hit Machine New Year (90-2000)", "url": "https://www.parisbouge.com/events/336382", "price": "dès 25 €", "capacity": "Soirée club", "place": "Paris", "note": "Places très limitées, réservation obligatoire. À combiner avec un resto.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s8", "scenario": "paris", "kind": "soiree", "title": "New Morning : concert + DJs", "url": "https://www.cometoparis.com/fre/le-grand-reveillon-du-nouvel-an-concert-and-djs-m9001812", "price": "60 € (21h–5h) ou 30 € (1h–5h)", "capacity": "Concert puis DJ sets", "place": "Paris 10e, Château d'Eau", "note": "2 boissons incluses, pas de dîner. Disponibilité à vérifier.", "state": "idee", "by": "Claude", "at": 0}, {"id": "m9", "scenario": "maison", "kind": "soiree", "title": "Réveillon au Warehouse (Nantes)", "url": "https://www.warehouse-nantes.fr/", "price": "à annoncer", "capacity": "3 salles · 23h–8h l'an dernier", "place": "Nantes, ~50 min de Saint-Nazaire", "note": "LE club de l'Ouest. Le programme du 31/12/2026 n'est pas encore sorti : à surveiller. Parfait avec la villa de Nantes, ou en navette depuis la maison.", "state": "idee", "by": "Claude", "at": 0}, {"id": "m10", "scenario": "maison", "kind": "soiree", "title": "Nouvel An au LAB (Chantenay)", "url": "https://metropole.nantes.fr/saint-sylvestre", "price": "entrée gratuite l'an dernier (dîner payant)", "capacity": "Fête 22h–5h", "place": "Nantes Chantenay", "note": "Thème « cosmic chic » l'an dernier. Édition 2026 à confirmer.", "state": "idee", "by": "Claude", "at": 0}, {"id": "m11", "scenario": "maison", "kind": "soiree", "title": "Saint-Sylvestre au Presqu'île Bowling", "url": "https://en.labaule-guerande.com/soiree-de-la-saint-sylvestre-au-presqu-ile-bowling-guerande.html", "price": "prix à demander", "capacity": "22h–4h l'an dernier", "place": "Guérande", "note": "À 20 min de Saint-Nazaire : sortir à minuit sans aller jusqu'à Nantes. Tél. 02 40 88 09 89.", "state": "idee", "by": "Claude", "at": 0}, {"id": "m12", "scenario": "maison", "kind": "autre", "title": "Minibus avec chauffeur pour la sortie", "url": "", "price": "devis à demander", "capacity": "aller-retour maison ↔ Nantes/Guérande", "place": "", "note": "Règle le problème du conducteur sobre le 31 si on dort à la maison mais qu'on sort. Le groupe garde la maison ET fait une vraie sortie.", "state": "idee", "by": "Claude", "at": 0}, {"id": "p5", "scenario": "paris", "kind": "logement", "title": "Generator Paris (auberge + soirée sur place)", "url": "https://staygenerator.com/hostels/paris", "price": "prix à vérifier", "capacity": "chambres privées 4–6", "place": "Paris 10e, Colonel Fabien", "note": "Connu pour ses soirées du Nouvel An (club, rooftop). Dormir et faire la fête au même endroit, sans transport la nuit.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s9", "scenario": "paris", "kind": "soiree", "title": "Combo Châtelet : resto Les Turbines + club", "url": "https://www.parisgourmand.com/reveillons-du-nouvel-an-moins-de-100-euros/nouvel-an-aux-turbines.html", "price": "69 € le dîner + 20–40 € la soirée", "capacity": "Dîner puis club à 5 min à pied", "place": "Paris 1er–2e", "note": "Menu de fête 69 € avec coupe de champagne (21 rue de Turbigo), puis Paris New Year (33 bis rue des Lombards) ou Hit Machine (46 rue des Lombards). Moins de 110 € tout compris.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s10", "scenario": "paris", "kind": "autre", "title": "Privatiser une petite péniche", "url": "https://www.parisseine.com/en/private-boats/", "price": "sur devis", "capacity": "10–40 personnes selon le bateau", "place": "Paris, sur la Seine", "note": "Paris Seine a des bateaux pour 10 à 40 personnes (Rocca IV, Bateau Ivre, La Parisienne) : soirée rien qu'à nous. Demander un devis vite, le 31 part tôt.", "state": "idee", "by": "Claude", "at": 0}, {"id": "s11", "scenario": "paris", "kind": "autre", "title": "Réserver un coin dans un bar dansant", "url": "https://www.privateaser.com/anniversaire-soiree/top-bars-dansant-nouvel-an-paris?page=1", "price": "souvent sans frais de location", "capacity": "sélection de 251 bars", "place": "Paris", "note": "Sur Privateaser on réserve un espace pour le groupe le 31. Moins cher qu'un dîner-club, plus d'ambiance qu'une boîte inconnue.", "state": "idee", "by": "Claude", "at": 0}],
   todos:[
     {id:"t1",text:"Tout le monde vérifie sa ligne et donne sa préférence (maison ou Paris)",done:false},
@@ -436,6 +558,9 @@ async function refresh(silent){
   if (busy || !BLOB_ID) return;
   try{
     const d = await load(); lastSync = Date.now();
+    // Votes still waiting to be flushed would vanish from the screen if the
+    // poll replaced state with a server copy that predates them.
+    const me = myId(); if (me) for (const [oid, v] of pending) setVote(d, me, oid, v);
     if (!state || d.updatedAt !== state.updatedAt){ state = d; render(); }
     setSync("ok"); $("#banner").innerHTML = "";
   }catch(e){
@@ -458,6 +583,63 @@ async function mutate(fn, okMsg){
 const SC = { maison:"🏡 La maison", paris:"🌃 Paris" };
 const KIND = { logement:"Logements", soiree:"Soirées", autre:"Autres idées" };
 const STATE = { idee:"À étudier", favori:"⭐ Favori", reserve:"✅ Réservé", ecarte:"Écarté" };
+const KIND1 = { logement:"Logement", soiree:"Soirée", autre:"Autre idée" };
+// The capacity field holds beds for a place but opening hours or format for
+// a party, so one fixed label would mislabel half the cards.
+const CAPL = { logement:"Capacité", soiree:"Format", autre:"Détails" };
+const KORDER = { logement:0, soiree:1, autre:2 };
+
+/* ================= votes ================= */
+// A vote lives on its option as votes[personId] = -1 (non), 1 (oui) or
+// 2 (coup de cœur). Votes from people no longer on the list are skipped
+// here rather than trusted to have been cleaned up.
+const VOTE = { "-1":"Non", "1":"Oui", "2":"Coup de cœur" };
+const myId = () => { const id = ls.get("nye_me"); return state?.people.some(p => p.id === id) ? id : null; };
+const myVote = o => { const me = myId(); return me ? (o.votes || {})[me] ?? null : null; };
+const fmtScore = s => s > 0 ? `+${s}` : String(s);
+function tally(o){
+  const ids = new Set(state.people.map(p => p.id));
+  const t = {love:0, yes:0, no:0, score:0, n:0};
+  for (const [pid, v] of Object.entries(o.votes || {})){
+    if (!ids.has(pid)) continue;
+    if (v === 2) t.love++; else if (v === 1) t.yes++; else if (v === -1) t.no++; else continue;
+    t.score += v; t.n++;
+  }
+  return t;
+}
+const byPlace = (a, b) => (a.scenario === b.scenario ? 0 : a.scenario === "maison" ? -1 : 1) || (KORDER[a.kind] ?? 2) - (KORDER[b.kind] ?? 2);
+const votable = () => state.options.filter(o => !["ecarte","reserve"].includes(o.state) && (!state.decision || o.scenario === state.decision));
+const ranked = () => votable().map(o => ({o, t:tally(o)})).filter(x => x.t.n)
+  .sort((a, b) => b.t.score - a.t.score || b.t.love - a.t.love || b.t.n - a.t.n);
+// A piste the group voted down is not « mieux notée », whatever its rank.
+const podium = () => ranked().filter(x => x.t.score > 0).slice(0, 3);
+const topRow = ({o, t}) => `<li><span class="tt">${esc(o.title)}</span><span class="sc">${fmtScore(t.score)}</span></li>`;
+
+function setVote(d, pid, oid, v){
+  const o = d.options.find(x => x.id === oid); if (!o) return;
+  o.votes = {...(o.votes || {})};
+  if (v == null) delete o.votes[pid]; else o.votes[pid] = v;
+}
+// Swipes come faster than a load+save round trip, and mutate() drops any
+// call made while busy, so votes queue here and leave in one batch.
+const pending = new Map();
+let flushT = 0;
+function vote(oid, v){
+  const me = myId(); if (!me) return;
+  pending.set(oid, v); setVote(state, me, oid, v); render();
+  clearTimeout(flushT); flushT = setTimeout(flushVotes, 700);
+}
+async function flushVotes(){
+  clearTimeout(flushT);
+  const me = myId(); if (!pending.size || !me) return;
+  if (busy){ flushT = setTimeout(flushVotes, 400); return; }
+  const batch = [...pending]; pending.clear();
+  const ok = await mutate(d => { for (const [oid, v] of batch) setVote(d, me, oid, v); });
+  if (!ok){
+    for (const [oid, v] of batch) if (!pending.has(oid)) pending.set(oid, v);
+    flushT = setTimeout(flushVotes, 4000);
+  }
+}
 
 function render(){
   if (!state) return;
@@ -482,6 +664,16 @@ function render(){
   $("#whoami").textContent = mine ? `Inscription au nom de ${mine.name}` : "";
   $("#fab").textContent = mine ? "Modifier ma réponse" : "Je viens";
 
+  // rate call-to-action
+  const pool = votable();
+  const left = mine ? pool.filter(o => myVote(o) == null).length : pool.length;
+  $("#rateBox").innerHTML = !pool.length ? "" : mine && !left
+    ? `<div class="rate done"><div class="rt"><b>Tu as noté toutes les pistes ✓</b><span>Le classement bouge à chaque vote.</span></div>
+        <button class="btn ghost small" type="button" data-action="rate-all">Revoir</button></div>`
+    : `<div class="rate"><div class="minis" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="rt"><b>Note les pistes</b><span>${left} piste${left>1?"s":""} à noter. Swipe à droite pour oui, à gauche pour non, vers le haut pour un coup de cœur.</span></div>
+        <button class="btn primary small" type="button" data-action="rate">C'est parti</button></div>`;
+
   // status
   const votes = {maison:0, paris:0, egal:0};
   for (const p of state.people) votes[p.pref || "egal"] += heads(p);
@@ -497,7 +689,10 @@ function render(){
     const lead = votes.maison === votes.paris ? "Égalité pour l'instant" : (votes.maison > votes.paris ? "La maison mène" : "Paris mène");
     p = state.people.length ? `${lead} : 🏡 ${votes.maison} · 🌃 ${votes.paris} · ${votes.egal} sans préférence. Inscris-toi pour donner ton avis.` : "Inscris-toi et dis ce que tu préfères, ça nous aide à trancher.";
   }
-  $("#status").innerHTML = `<h2>${h}</h2><p>${p}</p>${nextTodo ? `<div class="next"><b>À faire</b><span>${esc(nextTodo.text)}</span></div>` : ""}`;
+  const top = podium();
+  $("#status").innerHTML = `<h2>${h}</h2><p>${p}</p>`
+    + (top.length ? `<p class="toplab">Les mieux notées</p><ol class="top">${top.map(topRow).join("")}</ol>` : "")
+    + (nextTodo ? `<div class="next"><b>À faire</b><span>${esc(nextTodo.text)}</span></div>` : "");
 
   // counts
   $("#nQui").textContent = nSure + nMaybe;
@@ -522,16 +717,24 @@ function render(){
 
   // scenarios
   const total = votes.maison + votes.paris || 1;
+  // Every vote re-renders this block; keep the « Écartées » folds the
+  // reader opened instead of snapping them shut.
+  const openDrops = new Set([...document.querySelectorAll("details.drop[open]")].map(d => d.dataset.k));
   $("#scenBox").innerHTML = ["maison","paris"].map(k => {
     const s = state.scenarios[k] || SEED.scenarios[k];
     const chosen = state.decision === k, dropped = state.decision && !chosen;
-    const opts = state.options.filter(o => o.scenario === k);
-    const order = {reserve:0,favori:1,idee:2,ecarte:3};
+    const opts = state.options.filter(o => o.scenario === k && o.state !== "ecarte");
+    const gone = state.options.filter(o => o.scenario === k && o.state === "ecarte");
+    const order = {reserve:0,favori:1,idee:2};
     const groups = Object.keys(KIND).map(kind => {
-      const list = opts.filter(o => (o.kind||"autre") === kind).sort((a,b)=>(order[a.state]??2)-(order[b.state]??2));
+      const list = opts.filter(o => (o.kind||"autre") === kind)
+        .map(o => ({o, sc:tally(o).score}))
+        .sort((a,b) => (order[a.o.state]??2)-(order[b.o.state]??2) || b.sc - a.sc)
+        .map(x => x.o);
       if (!list.length) return kind === "autre" ? "" : `<p class="kind">${KIND[kind]}</p><p class="none">Rien de repéré pour l'instant.</p>`;
       return `<p class="kind">${KIND[kind]} · ${list.length}</p><ul class="opts">${list.map(optCard).join("")}</ul>`;
-    }).join("");
+    }).join("") + (gone.length ? `<details class="drop" data-k="${k}" ${openDrops.has(k) ? "open" : ""}>
+        <summary>Écartées · ${gone.length}</summary><ul class="opts">${gone.map(optCard).join("")}</ul></details>` : "");
     return `<article class="scen ${chosen?"chosen":""} ${dropped?"dropped":""}">
       <div class="scen-head">
         <div class="t"><h3>${k==="maison"?"🏡":"🌃"} ${esc(s.title)}</h3>${chosen?'<span class="badge">Choisie</span>':""}</div>
@@ -554,12 +757,19 @@ function render(){
 }
 
 function optCard(o){
-  const u = safeUrl(o.url);
-  const meta = [o.place, o.price, o.capacity].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join("");
+  const u = safeUrl(o.url), t = tally(o), mine = myVote(o);
+  const info = [["Lieu", o.place], ["Prix", o.price], [CAPL[o.kind] || "Détails", o.capacity]]
+    .filter(x => x[1]).map(([l, v]) => `<div><dt>${l}</dt><dd>${esc(v)}</dd></div>`).join("");
+  const vb = (v, ico) => `<button class="vb ${mine === v ? "on" : ""}" type="button" data-action="vote" data-id="${esc(o.id)}" data-v="${v}"
+      aria-pressed="${mine === v}" aria-label="${VOTE[v]}" title="${VOTE[v]}">${ico}</button>`;
+  const canVote = !["ecarte","reserve"].includes(o.state);
   return `<li class="opt ${esc(o.state||"idee")}">
-    <div class="ot">${esc(o.title)}</div>
-    ${meta?`<div class="om">${meta}</div>`:""}
-    ${o.note?`<div class="on">${esc(o.note)}</div>`:""}
+    <div class="ohead"><div class="ot">${esc(o.title)}</div>
+      ${t.n ? `<span class="sc ${t.score > 0 ? "pos" : t.score < 0 ? "neg" : ""}" title="Score du groupe">${fmtScore(t.score)}</span>` : ""}</div>
+    ${info ? `<dl class="info">${info}</dl>` : ""}
+    ${o.note ? `<div class="onote">${esc(o.note)}</div>` : ""}
+    ${canVote ? `<div class="ovote"><span class="tally">${t.n ? `♥ ${t.love} · ✓ ${t.yes} · ✕ ${t.no}` : "Pas encore de vote"}</span>
+      <span class="vbtns" role="group" aria-label="Ton avis sur ${esc(o.title)}">${vb(-1, "✕")}${vb(1, "✓")}${vb(2, "♥")}</span></div>` : ""}
     <div class="oa">
       <select data-action="opt-state" data-id="${esc(o.id)}" aria-label="Statut de ${esc(o.title)}">
         ${Object.entries(STATE).map(([v,l])=>`<option value="${v}" ${ (o.state||"idee")===v?"selected":""}>${l}</option>`).join("")}
@@ -620,19 +830,27 @@ $("#personForm").addEventListener("submit", async e => {
   if (!editingPerson && state.people.some(p => p.name.toLowerCase() === name.toLowerCase())){
     $("#pErr").textContent = `${name} est déjà sur la liste. Touche son nom dans la liste pour modifier sa réponse.`; return;
   }
-  const id = editingPerson || uid();
+  const id = editingPerson || uid(), isNew = !editingPerson;
   const ok = await mutate(d => {
     const i = d.people.findIndex(p => p.id === id);
     if (i >= 0) d.people[i] = {...d.people[i], ...rec, at:Date.now()};
     else d.people.push({id, ...rec, at:Date.now()});
   }, editingPerson ? "Réponse modifiée" : `Bienvenue ${name}, tu es sur la liste 🎉`);
-  if (ok){ if (!editingPerson || editingPerson === ls.get("nye_me") || !ls.get("nye_me")) ls.set("nye_me", id); closeDlg($("#dlgPerson")); }
+  if (ok){
+    if (!editingPerson || editingPerson === ls.get("nye_me") || !ls.get("nye_me")) ls.set("nye_me", id);
+    closeDlg($("#dlgPerson")); render();
+    // Someone who just said « je viens » goes straight to rating the pistes.
+    if (isNew && votable().length) setTimeout(() => openDeck(false), 280);
+  }
 });
 $("#pDelete").addEventListener("click", async () => {
   const p = state.people.find(x => x.id === editingPerson); if (!p) return;
   closeDlg($("#dlgPerson"));
   if (!await confirmDlg(`Retirer ${p.name} ?`, `${p.name}${p.guests?.length ? " et ses +" + p.guests.length + " ne compteront" : " ne comptera"} plus dans le total.`, "Retirer")) return;
-  await mutate(d => { d.people = d.people.filter(x => x.id !== p.id); }, `${p.name} n'est plus sur la liste`);
+  await mutate(d => {
+    d.people = d.people.filter(x => x.id !== p.id);
+    for (const o of d.options) if (o.votes) delete o.votes[p.id];
+  }, `${p.name} n'est plus sur la liste`);
   if (ls.get("nye_me") === p.id) ls.set("nye_me", null);
 });
 
@@ -673,6 +891,139 @@ $("#oDelete").addEventListener("click", async () => {
   await mutate(d => { d.options = d.options.filter(x => x.id !== o.id); }, "Piste supprimée");
 });
 
+/* ================= swipe deck ================= */
+const deck = { list:[], i:0, hist:[], lock:false };
+// deck.list keeps the objects it was opened with; polls replace state, so
+// read the current copy before showing or voting.
+const fresh = o => state.options.find(x => x.id === o.id) || o;
+
+function openDeck(all){
+  const dlg = $("#dlgDeck");
+  if (!myId()) renderWho();
+  else {
+    const pool = votable().sort(byPlace);
+    const todo = pool.filter(o => myVote(o) == null);
+    deck.list = all || !todo.length ? pool : todo;
+    deck.i = 0; deck.hist = []; deck.lock = false;
+    renderDeck();
+  }
+  if (!dlg.open) openDlg(dlg);
+}
+function renderWho(){
+  $("#dkCount").textContent = ""; $("#dkBar").style.width = "0"; $("#dkUndo").classList.add("hidden");
+  const ppl = [...state.people].sort((a, b) => a.name.localeCompare(b.name, "fr"));
+  $("#dkBody").innerHTML = `<div class="who-pick"><h2>Qui es-tu ?</h2>
+    <p class="lede">Tes votes comptent à ton nom : une voix par personne dans le classement.</p>
+    ${ppl.length ? `<div class="who-list">${ppl.map(p => `<button class="who-btn" type="button" data-who="${esc(p.id)}">
+      <span class="av" style="background:${colorFor(p.name)}">${esc((p.name||"?").trim().charAt(0).toUpperCase())}</span>${esc(p.name)}</button>`).join("")}</div>` : ""}
+    <button class="btn ${ppl.length ? "ghost" : "primary"}" type="button" data-deck-join>Je ne suis pas dans la liste</button></div>`;
+}
+function deckCard(o, cls){
+  o = fresh(o);
+  const u = safeUrl(o.url), mine = myVote(o);
+  // Same three rows on every card, filled or not, so cards compare at a glance.
+  const row = (l, v) => `<div><dt>${l}</dt><dd${v ? "" : ' class="na"'}>${v ? esc(v) : "Non renseigné"}</dd></div>`;
+  return `<article class="card ${cls}" ${cls === "next" ? 'aria-hidden="true"' : ""}>
+    <div class="tags"><span class="tag">${SC[o.scenario] || ""}</span><span class="tag">${KIND1[o.kind] || "Autre idée"}</span>${o.state === "favori" ? '<span class="tag fav">⭐ Favori</span>' : ""}</div>
+    <h3>${esc(o.title)}</h3>
+    <dl class="info">${row("Lieu", o.place)}${row("Prix", o.price)}${row(CAPL[o.kind] || "Détails", o.capacity)}</dl>
+    ${o.note ? `<p class="cnote">${esc(o.note)}</p>` : ""}
+    <div class="cfoot">${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">Voir le lien ↗</a>` : "<span></span>"}
+      ${mine != null ? `<span class="was">Ton vote : ${VOTE[mine]}</span>` : ""}</div>
+    <span class="stamp s-yes">Oui</span><span class="stamp s-no">Non</span><span class="stamp s-love">Coup de cœur</span>
+  </article>`;
+}
+function renderDeck(){
+  const n = deck.list.length, done = deck.i >= n;
+  $("#dkUndo").classList.remove("hidden"); $("#dkUndo").disabled = !deck.hist.length;
+  $("#dkCount").textContent = done ? "Terminé" : `${deck.i + 1} sur ${n}`;
+  $("#dkBar").style.width = `${Math.round(Math.min(deck.i, n) / (n || 1) * 100)}%`;
+  deck.lock = false;
+  if (done){ flushVotes(); $("#dkBody").innerHTML = deckEnd(); return; }
+  const nxt = deck.list[deck.i + 1];
+  $("#dkBody").innerHTML = `<div class="stack">${nxt ? deckCard(nxt, "next") : ""}${deckCard(deck.list[deck.i], "top")}</div>
+    <div class="acts">
+      <button class="act no" type="button" data-deck="-1"><span aria-hidden="true">✕</span>Non</button>
+      <button class="act love" type="button" data-deck="2"><span aria-hidden="true">♥</span>Coup de cœur</button>
+      <button class="act yes" type="button" data-deck="1"><span aria-hidden="true">✓</span>Oui</button>
+    </div>
+    <button class="skip" type="button" data-deck="skip">Je ne sais pas, passer</button>`;
+  bindDrag($("#dkBody .card.top"));
+}
+function deckEnd(){
+  const top = podium();
+  return `<div class="deck-end"><div class="party" aria-hidden="true">🎉</div><h2>Merci, c'est noté !</h2>
+    <p class="lede">Tes votes comptent dans le classement. Tu peux les changer quand tu veux, depuis chaque piste.</p>
+    ${top.length ? `<p class="kind">Le top du groupe pour l'instant</p><ol class="top">${top.map(topRow).join("")}</ol>` : ""}
+    <div class="row mt"><button class="btn primary" type="button" data-deck-see>Voir toutes les pistes</button>
+      <button class="btn ghost" type="button" data-deck-again>Revoir mes votes</button></div></div>`;
+}
+// Thresholds in px, far enough that a tap or a hesitant drag never counts.
+const intent = (dx, dy) => dy < -110 && Math.abs(dx) < 90 ? 2 : dx > 100 ? 1 : dx < -100 ? -1 : null;
+function bindDrag(el){
+  if (!el) return;
+  let x0 = 0, y0 = 0, dx = 0, dy = 0, on = false;
+  const clamp = v => Math.max(0, Math.min(1, v));
+  const paint = () => {
+    el.style.transform = `translate(${dx}px,${dy}px) rotate(${dx / 18}deg)`;
+    el.style.setProperty("--o-yes", clamp(dx / 100));
+    el.style.setProperty("--o-no", clamp(-dx / 100));
+    el.style.setProperty("--o-love", Math.abs(dx) < 90 ? clamp(-dy / 110) : 0);
+  };
+  el.addEventListener("pointerdown", e => {
+    if (e.button > 0 || e.target.closest("a,button")) return;
+    on = true; x0 = e.clientX; y0 = e.clientY; dx = dy = 0;
+    el.setPointerCapture(e.pointerId); el.style.transition = "none";
+  });
+  el.addEventListener("pointermove", e => { if (on){ dx = e.clientX - x0; dy = e.clientY - y0; paint(); } });
+  const end = () => {
+    if (!on) return; on = false;
+    const v = intent(dx, dy);
+    if (v != null) return decide(v, dx, dy);
+    el.style.transition = ""; dx = dy = 0; paint();
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+}
+function decide(v, dx = 0, dy = 0){
+  if (deck.lock || deck.i >= deck.list.length) return;
+  deck.lock = true;
+  const o = fresh(deck.list[deck.i]);
+  deck.hist.push({id:o.id, i:deck.i, skip:v === "skip", prev:myVote(o)});
+  if (v !== "skip") vote(o.id, v);
+  const el = $("#dkBody .card.top");
+  if (el){
+    const W = Math.max(window.innerWidth, 600);
+    const [tx, ty] = v === 1 ? [W, dy] : v === -1 ? [-W, dy] : v === 2 ? [dx, -W] : [0, 40];
+    el.style.transition = "transform .3s ease-in, opacity .3s ease-in";
+    if (v !== "skip") el.style.setProperty(v === 1 ? "--o-yes" : v === -1 ? "--o-no" : "--o-love", 1);
+    el.style.transform = `translate(${tx}px,${ty}px) rotate(${v === "skip" ? 0 : tx / 30}deg)`;
+    el.style.opacity = "0";
+  }
+  // A timer, not transitionend: with reduced motion there is no transition,
+  // the event never fires and the deck would freeze on this card.
+  setTimeout(() => { deck.i++; renderDeck(); }, 240);
+}
+$("#dkUndo").addEventListener("click", () => {
+  const h = deck.hist.pop(); if (!h) return;
+  if (!h.skip) vote(h.id, h.prev);
+  deck.i = h.i; renderDeck();
+});
+$("#dkBody").addEventListener("click", e => {
+  const b = e.target.closest("[data-deck]");
+  if (b){ decide(b.dataset.deck === "skip" ? "skip" : Number(b.dataset.deck)); return; }
+  const w = e.target.closest("[data-who]");
+  if (w){ ls.set("nye_me", w.dataset.who); render(); openDeck(false); return; }
+  if (e.target.closest("[data-deck-join]")){ closeDlg($("#dlgDeck")); openPerson(null); return; }
+  if (e.target.closest("[data-deck-again]")){ openDeck(true); return; }
+  if (e.target.closest("[data-deck-see]")){ closeDlg($("#dlgDeck")); document.getElementById("pistes").scrollIntoView({behavior:"smooth"}); }
+});
+$("#dlgDeck").addEventListener("keydown", e => {
+  const v = {ArrowRight:1, ArrowLeft:-1, ArrowUp:2}[e.key];
+  if (v != null && $("#dkBody .card.top")){ e.preventDefault(); decide(v); }
+});
+$("#dlgDeck").addEventListener("close", () => flushVotes());
+
 /* ================= actions ================= */
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-action]"); if (!el || !state) return;
@@ -693,6 +1044,13 @@ document.addEventListener("click", async e => {
       await mutate(d => { d.decision = null; const t = d.todos.find(x => /choisir entre/i.test(x.text)); if (t) t.done = false; }, "Choix annulé");
   }
   if (a === "import") importJson();
+  if (a === "rate") openDeck(false);
+  if (a === "rate-all") openDeck(true);
+  if (a === "vote"){
+    if (!myId()){ openDeck(false); return; }
+    const v = Number(el.dataset.v), o = state.options.find(x => x.id === id);
+    if (o) vote(id, myVote(o) === v ? null : v);
+  }
 });
 document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".person")){ e.preventDefault(); openPerson(e.target.dataset.id); }
