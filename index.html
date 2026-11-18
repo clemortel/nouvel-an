@@ -786,18 +786,25 @@ function setSync(mode){
   const b=$("#sync"); b.classList.toggle("busy",mode==="busy"); b.classList.toggle("err",mode==="err");
   $("#syncTxt").textContent = mode==="busy" ? "Enregistrement…" : mode==="err" ? "Hors ligne · réessayer" : `À jour ${ago(lastSync)}`;
 }
+let tapQueued = false;
 async function refresh(silent){
   if (!BLOB_ID) return;
   // A poll skips a busy moment; a tap waits for its turn instead of being
-  // ignored while a background check runs.
-  if (busy){ if (!silent) serial(() => refresh(false)); return; }
+  // ignored while a background check runs. One waiting tap is enough.
+  if (busy){
+    if (!silent && !tapQueued){
+      tapQueued = true;
+      serial(() => { tapQueued = false; return refresh(false); });
+    }
+    return;
+  }
   try{
     const d = await load(); lastSync = Date.now();
     // Votes still waiting to be flushed would vanish from the screen if the
     // poll replaced state with a server copy that predates them.
     const me = myId(); if (me) for (const [oid, v] of pending) setVote(d, me, oid, v);
     if (!state || d.updatedAt !== state.updatedAt){ state = d; render(); }
-    setSync("ok"); $("#banner").innerHTML = "";
+    settled(); $("#banner").innerHTML = "";
   }catch(e){
     setSync("err");
     if (!silent || !state) $("#banner").innerHTML = `<div class="banner" role="alert"><span>Impossible de charger la liste. Vérifie ta connexion.</span>
@@ -842,7 +849,8 @@ async function sendOnce(key, task){
 function mutate(fn, okMsg){
   waiting++; setSync("busy");
   return serial(async () => {
-    busy = true; let ok = false;
+    // An earlier write may have failed and shown « Hors ligne » meanwhile.
+    busy = true; let ok = false; setSync("busy");
     try{
       const d = await load(); fn(d); d.updatedAt = Date.now();
       await save(d); state = d; lastSync = Date.now();
@@ -852,7 +860,8 @@ function mutate(fn, okMsg){
     }catch(e){}
     finally{ busy = false; waiting--; }
     if (!ok){
-      setSync("err"); toast("Pas enregistré : connexion impossible. Réessaie.");
+      setSync("err");
+      toast("Pas enregistré : connexion impossible. Réessaie.");
       return false;
     }
     settled(); if (okMsg) toast(okMsg); return true;
@@ -874,16 +883,18 @@ async function recheck(){
       if (me) for (const [oid, v] of pending) setVote(want, me, oid, v);
       state = want; render();
     }
-    ok = true;
+    ok = true; lastSync = Date.now();
   }catch(e){}
   finally{ busy = false; }
-  // A check that worked clears an « Hors ligne » left by one that failed.
-  if (ok) settled(); else setSync("err");
+  // A check that worked proves the link is back: it clears « Hors ligne »
+  // and the load banner. A write that failed told so in its own toast.
+  if (ok){ settled(); $("#banner").innerHTML = ""; } else setSync("err");
   const now = Date.now();
   for (let i = recent.length - 1; i >= 0; i--){
     const r = recent[i]; if (ok) r.ok++;
     const age = now - r.t;
-    if ((r.ok >= 2 && age >= SETTLE_MS) || age > KEEP_MAX_MS) recent.splice(i, 1);
+    const done = (r.ok >= 2 && age >= SETTLE_MS) || age > KEEP_MAX_MS;
+    if (done) recent.splice(i, 1);
   }
   if (recent.length) checkT = setTimeout(() => serial(recheck), CHECK_MS);
 }
@@ -896,10 +907,19 @@ const bury = (d, id) => {
   if (!d.gone.includes(id)) d.gone = [...d.gone, id].slice(-GONE_MAX);
 };
 const alive = (d, id) => !d.gone.includes(id);
-// The fields of a form that differ from the record as the form opened. An
-// edit writes only these, so its replay leaves the other fields to others.
+// The fields of a form that differ from the same form as it opened. An edit
+// writes only these, so its replay leaves the other fields to others. Trap:
+// compare form to form, never form to record: a field missing from the
+// record reads "" in the form and would always count as changed.
 const changed = (rec, base) => Object.fromEntries(Object.entries(rec)
   .filter(([k, v]) => JSON.stringify(v) !== JSON.stringify(base?.[k])));
+// Writes a form into d[key]. A record found gets `patch` only; one absent
+// (new, or erased by a stale write) comes back whole, unless deleted.
+function upsert(d, key, id, patch, whole){
+  const i = d[key].findIndex(x => x.id === id);
+  if (i >= 0) d[key][i] = {...d[key][i], ...patch};
+  else if (alive(d, id)) d[key].push(whole);
+}
 
 /* ================= labels ================= */
 const SCN = { maison:"Maison", paris:"Paris" };
@@ -1377,7 +1397,10 @@ function confirmDlg(title, text, yes){
   });
 }
 
-let editingPerson = null, personBase = null, sheetGuests = [];
+// personBase: the record as the sheet opened, to rebuild it if a stale
+// write erased it. personForm: what the sheet showed then, to diff against.
+let editingPerson = null, personBase = null, personForm = null;
+let sheetGuests = [];
 const checkedVal = name => document.querySelector(`input[name=${name}]:checked`)?.value ?? null;
 function drawGuests(){
   $("#pGuestList").innerHTML = sheetGuests.map((g, i) => `<li>${esc(g)}<button type="button" data-rm="${i}" aria-label="Retirer ${esc(g)}">${svg("x", 16, 2.4)}</button></li>`).join("");
@@ -1428,6 +1451,7 @@ function openPerson(id, st){
   $("#pSubmit").disabled = false;
   $("#pDelete").classList.toggle("hidden", !p);
   $("#pErr").innerHTML = "";
+  personForm = personRec();
   openDlg($("#dlgPerson"));
   if (!p) setTimeout(()=>$("#pName").focus(), 60);
 }
@@ -1441,19 +1465,24 @@ $("#pErr").addEventListener("click", e => {
   const p = state.people.find(x => x.id === b.dataset.claim); if (!p) return;
   ls.set("nye_me", p.id); closeDlg($("#dlgPerson")); render(); toast(`Te revoilà, ${p.name}`);
 });
-$("#personForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const name = $("#pName").value.trim();
-  if (!name){ $("#pErr").textContent = "Indique ton prénom pour t'inscrire."; $("#pName").focus(); return; }
-  addGuests();
-  const status = checkedVal("pStatus") || "sur";
-  const rec = { name, guests: sheetGuests.slice(0,12), status, pref: checkedVal("pPref") || "egal", note: $("#pNote").value.trim() };
+function personRec(){
+  const rec = { name: $("#pName").value.trim(), guests: sheetGuests.slice(0,12),
+    status: checkedVal("pStatus") || "sur", pref: checkedVal("pPref") || "egal",
+    note: $("#pNote").value.trim() };
   // Only an answer given on screen is written; a hidden or untouched
   // question keeps whatever the document already holds. Visibility, not
   // stayAsked(), decides: a poll may change the decision while the sheet
   // is open, and the answer the guest picked must not vanish.
   const stay = checkedVal("pStay");
   if (stay && !$("#pStayBox").classList.contains("hidden")) rec.stay2 = stay;
+  return rec;
+}
+$("#personForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = $("#pName").value.trim();
+  if (!name){ $("#pErr").textContent = "Indique ton prénom pour t'inscrire."; $("#pName").focus(); return; }
+  addGuests();
+  const rec = personRec(), status = rec.status;
   if (!editingPerson){
     const dup = state.people.find(p => p.name.toLowerCase() === name.toLowerCase());
     if (dup){
@@ -1465,17 +1494,13 @@ $("#personForm").addEventListener("submit", async e => {
   }
   // Fixed before mutate(): its callback may be replayed (see recheck).
   const id = editingPerson || uid(), at = Date.now(), isNew = !editingPerson;
-  const base = personBase, patch = changed(rec, base);
+  const patch = isNew ? rec : changed(rec, personForm);
+  // Nothing touched: writing would only replace the document for nothing.
+  if (!Object.keys(patch).length){ closeDlg($("#dlgPerson")); return; }
+  const whole = {...personBase, id, ...rec, at};
   const btn = $("#pSubmit"), label = btn.textContent;
   btn.disabled = true; btn.textContent = "Enregistrement…";
-  const ok = await mutate(d => {
-    const i = d.people.findIndex(p => p.id === id);
-    if (i >= 0){
-      if (Object.keys(patch).length) d.people[i] = {...d.people[i], ...patch, at};
-    }
-    // Absent: new, or erased by a stale write. Deleted ones stay deleted.
-    else if (alive(d, id)) d.people.push({...base, id, ...rec, at});
-  }, !isNew ? "Réponse modifiée" : status === "non" ? "C'est noté, merci d'avoir répondu" : `Bienvenue ${name}, tu es sur la liste`);
+  const ok = await mutate(d => upsert(d, "people", id, {...patch, at}, whole), !isNew ? "Réponse modifiée" : status === "non" ? "C'est noté, merci d'avoir répondu" : `Bienvenue ${name}, tu es sur la liste`);
   btn.disabled = false; btn.textContent = label;
   if (ok){
     if (!editingPerson || editingPerson === ls.get("nye_me") || !ls.get("nye_me")) ls.set("nye_me", id);
@@ -1496,7 +1521,7 @@ $("#pDelete").addEventListener("click", async () => {
   render();
 });
 
-let editingOpt = null, optBase = null;
+let editingOpt = null, optBase = null, optForm = null;   // as personBase/Form
 function openOpt(id){
   const o = id ? state.options.find(x => x.id === id) : null;
   editingOpt = o ? o.id : null;
@@ -1509,28 +1534,27 @@ function openOpt(id){
   $("#oDates").value = o?.dates || ""; $("#oWarn").value = o?.warn || "";
   $("#oSubmit").textContent = o ? "Enregistrer" : "Ajouter";
   $("#oErr").textContent = "";
+  optForm = optRec();
   openDlg($("#dlgOpt"));
 }
+const optRec = () => ({ scenario: checkedVal("oScen"), kind: checkedVal("oKind"),
+  title: $("#oName").value.trim(), url: $("#oUrl").value.trim(),
+  price: $("#oPrice").value.trim(), capacity: $("#oCap").value.trim(),
+  place: $("#oPlace").value.trim(), note: $("#oNote").value.trim(),
+  dates: $("#oDates").value.trim(), warn: $("#oWarn").value.trim() });
 $("#optForm").addEventListener("submit", async e => {
   e.preventDefault();
-  const title = $("#oName").value.trim();
-  if (!title){ $("#oErr").textContent = "Donne un nom à la piste."; return; }
-  const u = $("#oUrl").value.trim();
-  if (u && !safeUrl(u)){ $("#oErr").textContent = "Le lien doit commencer par https://"; return; }
-  const rec = { scenario: checkedVal("oScen"), kind: checkedVal("oKind"),
-    title, url:u, price:$("#oPrice").value.trim(), capacity:$("#oCap").value.trim(), place:$("#oPlace").value.trim(), note:$("#oNote").value.trim(),
-    dates:$("#oDates").value.trim(), warn:$("#oWarn").value.trim() };
+  const rec = optRec();
+  if (!rec.title){ $("#oErr").textContent = "Donne un nom à la piste."; return; }
+  if (rec.url && !safeUrl(rec.url)){ $("#oErr").textContent = "Le lien doit commencer par https://"; return; }
   const me = state.people.find(p => p.id === ls.get("nye_me"));
   const id = editingOpt || uid(), at = Date.now();
-  const base = optBase || {state:"idee", by: me?.name || "", at};
-  const patch = changed(rec, optBase);
-  const ok = await sendOnce("opt", () => mutate(d => {
-    const i = d.options.findIndex(o => o.id === id);
-    if (i >= 0){
-      if (Object.keys(patch).length) d.options[i] = {...d.options[i], ...patch};
-    }
-    else if (alive(d, id)) d.options.push({...base, id, ...rec});
-  }, editingOpt ? "Piste modifiée" : "Piste ajoutée"));
+  const patch = editingOpt ? changed(rec, optForm) : rec;
+  if (!Object.keys(patch).length){ closeDlg($("#dlgOpt")); return; }
+  const whole = {...(optBase || {state:"idee", by: me?.name || "", at}), id, ...rec};
+  const ok = await sendOnce("opt", () => mutate(
+    d => upsert(d, "options", id, patch, whole),
+    editingOpt ? "Piste modifiée" : "Piste ajoutée"));
   if (ok) closeDlg($("#dlgOpt"));
 });
 async function deleteOpt(id){
@@ -1771,7 +1795,9 @@ async function importJson(){
     const have = new Set(d.options.map(o => o.id));
     d.options.push(...clean.filter(c => !have.has(c.id) && alive(d, c.id)));
   };
-  if (await sendOnce("import", () => mutate(addAll, `${clean.length} piste${clean.length>1?"s":""} importée${clean.length>1?"s":""}`))){
+  const n = clean.length, pl = n > 1 ? "s" : "";
+  const msg = `${n} piste${pl} importée${pl}`;
+  if (await sendOnce("import", () => mutate(addAll, msg))){
     $("#importTxt").value = ""; closeDlg($("#dlgImport")); location.hash = "pistes";
   }
 }
@@ -1807,7 +1833,7 @@ try{ history.scrollRestoration = "manual"; }catch(e){}
 $("#sync").addEventListener("click", () => refresh(false));
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(true); });
 setInterval(() => { if (!document.hidden) refresh(true); else setSync("ok"); }, POLL_MS);
-setInterval(() => { if (!busy && lastSync) setSync("ok"); tick(); }, 30000);
+setInterval(() => { if (!busy && !waiting && lastSync) setSync("ok"); tick(); }, 30000);
 
 /* ================= boot ================= */
 document.querySelectorAll("[data-ico]").forEach(el => { el.outerHTML = svg(el.dataset.ico, Number(el.dataset.s) || 20, Number(el.dataset.w) || 2.2); });
