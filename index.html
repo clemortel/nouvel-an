@@ -758,7 +758,8 @@ function normalize(d){
     scenarios: d.scenarios || SEED.scenarios,
     people: Array.isArray(d.people) ? d.people : [],
     options: Array.isArray(d.options) ? d.options : [],
-    todos: Array.isArray(d.todos) ? d.todos : []
+    todos: Array.isArray(d.todos) ? d.todos : [],
+    gone: Array.isArray(d.gone) ? d.gone : []
   };
 }
 // npoint has been seen taking 42 s to answer. Without a cap, `busy` stays
@@ -802,44 +803,76 @@ async function refresh(silent){
 }
 /* read-latest → apply → write. Not enough on its own: npoint replaces the
    whole document on each POST, so when two guests load at the same second
-   the later write drops the earlier one's change. Each change is kept for
-   a few seconds and replayed on a fresh copy; if replaying alters the copy,
-   the change was lost and is written again. Callbacks must be idempotent:
-   run a second time they change nothing, so ids and timestamps are fixed
-   before the call. Trap: inside that window, a replay also undoes another
-   guest's edit of the very same field. */
-const REPLAY_MS = 12000, CHECKS_MS = [3000, 9000];
+   the later write drops the earlier one's change. Each change is therefore
+   kept and replayed on a fresh copy every CHECK_MS; if replaying alters the
+   copy, the change was lost and is written again. A change is let go once
+   two checks passed and SETTLE_MS went by: long enough for a stale write
+   still in flight (a load then a save, TIMEOUT_MS each) to have landed.
+   Callbacks must be idempotent: run a second time they change nothing, so
+   ids, timestamps and clicked values are fixed before the call, and a
+   creation is skipped once its id is in `gone` (see bury). Trap: while a
+   change is kept, its replay also undoes another guest's edit of the very
+   same field. */
+const CHECK_MS = 4000, SETTLE_MS = 2 * TIMEOUT_MS + 2000, KEEP_MAX_MS = 90000;
 const recent = [];
+let checkT = 0;
 const bare = d => JSON.stringify({...d, updatedAt:0});
-async function mutate(fn, okMsg){
-  if (busy) return false; busy = true; setSync("busy");
-  try{
-    const d = await load(); fn(d); d.updatedAt = Date.now();
-    await save(d); state = d; lastSync = Date.now(); render(); setSync("ok");
-    recent.push({fn, t:Date.now()}); for (const ms of CHECKS_MS) setTimeout(recheck, ms);
-    if (okMsg) toast(okMsg); return true;
-  }catch(e){ setSync("err"); toast("Pas enregistré : connexion impossible. Réessaie."); return false; }
-  finally{ busy = false; }
+// One write at a time, in the order asked: an action waits for a running
+// check instead of being dropped, and two quick clicks land in order.
+let queue = Promise.resolve();
+const serial = task => { const run = queue.then(task); queue = run.catch(() => {}); return run; };
+// Since calls wait instead of being dropped, a double tap on a form would
+// queue two creations under two ids. A form sends once until it is done.
+const sending = new Set();
+async function sendOnce(key, task){
+  if (sending.has(key)) return false;
+  sending.add(key);
+  try{ return await task(); } finally{ sending.delete(key); }
 }
-// Replays every change of the last REPLAY_MS, in order, so a later change
-// of this guest still wins over an earlier one it superseded.
+function mutate(fn, okMsg){
+  setSync("busy");
+  return serial(async () => {
+    busy = true;
+    try{
+      const d = await load(); fn(d); d.updatedAt = Date.now();
+      await save(d); state = d; lastSync = Date.now(); render(); setSync("ok");
+      recent.push({fn, t:Date.now(), ok:0});
+      if (!checkT) checkT = setTimeout(() => serial(recheck), CHECK_MS);
+      if (okMsg) toast(okMsg); return true;
+    }catch(e){ setSync("err"); toast("Pas enregistré : connexion impossible. Réessaie."); return false; }
+    finally{ busy = false; }
+  });
+}
+// Replays the kept changes in order, so a later change of this guest still
+// wins over an earlier one it superseded.
 async function recheck(){
-  const now = Date.now();
-  while (recent.length && now - recent[0].t > REPLAY_MS) recent.shift();
+  checkT = 0;
   if (!recent.length) return;
-  if (busy){ setTimeout(recheck, 700); return; }
-  busy = true;
+  busy = true; let ok = false;
   try{
     const d = await load(), want = JSON.parse(JSON.stringify(d));
     for (const r of recent) r.fn(want);
-    if (bare(want) === bare(d)) return;
-    want.updatedAt = Date.now(); await save(want); lastSync = Date.now();
-    // Same as refresh(): votes not flushed yet stay on screen.
-    const me = myId(); if (me) for (const [oid, v] of pending) setVote(want, me, oid, v);
-    state = want; render(); setSync("ok");
-  }catch(e){ setTimeout(recheck, 3000); }
+    if (bare(want) !== bare(d)){
+      want.updatedAt = Date.now(); await save(want); lastSync = Date.now();
+      // Same as refresh(): votes not flushed yet stay on screen.
+      const me = myId(); if (me) for (const [oid, v] of pending) setVote(want, me, oid, v);
+      state = want; render(); setSync("ok");
+    }
+    ok = true;
+  }catch(e){ setSync("err"); }
   finally{ busy = false; }
+  const now = Date.now();
+  for (let i = recent.length - 1; i >= 0; i--){
+    const r = recent[i]; if (ok) r.ok++;
+    if ((r.ok >= 2 && now - r.t >= SETTLE_MS) || now - r.t > KEEP_MAX_MS) recent.splice(i, 1);
+  }
+  if (recent.length) checkT = setTimeout(() => serial(recheck), CHECK_MS);
 }
+// A deletion leaves its id here so that no replay, from any guest, brings
+// the record back. Bounded: only recent deletions can meet a replay.
+const GONE_MAX = 200;
+const bury = (d, id) => { if (!d.gone.includes(id)) d.gone = [...d.gone, id].slice(-GONE_MAX); };
+const alive = (d, id) => !d.gone.includes(id);
 
 /* ================= labels ================= */
 const SCN = { maison:"Maison", paris:"Paris" };
@@ -981,8 +1014,8 @@ function setVote(d, pid, oid, v){
   o.votes = {...(o.votes || {})};
   if (v == null) delete o.votes[pid]; else o.votes[pid] = v;
 }
-// Swipes come faster than a load+save round trip, and mutate() drops any
-// call made while busy, so votes queue here and leave in one batch.
+// Swipes come faster than a load+save round trip, so votes queue here and
+// leave in one batch rather than one write per card.
 const pending = new Map();
 let flushT = 0;
 function vote(oid, v){
@@ -1406,7 +1439,7 @@ $("#personForm").addEventListener("submit", async e => {
   const ok = await mutate(d => {
     const i = d.people.findIndex(p => p.id === id);
     if (i >= 0) d.people[i] = {...d.people[i], ...rec, at};
-    else d.people.push({id, ...rec, at});
+    else if (alive(d, id)) d.people.push({id, ...rec, at});
   }, !isNew ? "Réponse modifiée" : status === "non" ? "C'est noté, merci d'avoir répondu" : `Bienvenue ${name}, tu es sur la liste`);
   btn.disabled = false; btn.textContent = label;
   if (ok){
@@ -1421,7 +1454,7 @@ $("#pDelete").addEventListener("click", async () => {
   closeDlg($("#dlgPerson"));
   if (!await confirmDlg(`Retirer ${p.name} ?`, `${p.name}${p.guests?.length ? " et ses +" + p.guests.length + " ne compteront" : " ne comptera"} plus dans le total.`, "Retirer")) return;
   await mutate(d => {
-    d.people = d.people.filter(x => x.id !== p.id);
+    d.people = d.people.filter(x => x.id !== p.id); bury(d, p.id);
     for (const o of d.options) if (o.votes) delete o.votes[p.id];
   }, `${p.name} n'est plus sur la liste`);
   if (ls.get("nye_me") === p.id) ls.set("nye_me", null);
@@ -1453,17 +1486,17 @@ $("#optForm").addEventListener("submit", async e => {
     dates:$("#oDates").value.trim(), warn:$("#oWarn").value.trim() };
   const me = state.people.find(p => p.id === ls.get("nye_me"));
   const id = editingOpt || uid(), at = Date.now();
-  const ok = await mutate(d => {
+  const ok = await sendOnce("opt", () => mutate(d => {
     const i = d.options.findIndex(o => o.id === id);
     if (i >= 0) d.options[i] = {...d.options[i], ...rec};
-    else d.options.push({id, ...rec, state:"idee", by: me?.name || "", at});
-  }, editingOpt ? "Piste modifiée" : "Piste ajoutée");
+    else if (alive(d, id)) d.options.push({id, ...rec, state:"idee", by: me?.name || "", at});
+  }, editingOpt ? "Piste modifiée" : "Piste ajoutée"));
   if (ok) closeDlg($("#dlgOpt"));
 });
 async function deleteOpt(id){
   const o = state.options.find(x => x.id === id); if (!o) return;
   if (!await confirmDlg("Supprimer cette piste ?", `« ${o.title} » disparaîtra pour tout le monde. Pour la garder en mémoire, mets-la plutôt en « Écarté ».`, "Supprimer")) return;
-  if (await mutate(d => { d.options = d.options.filter(x => x.id !== o.id); }, "Piste supprimée") && route.view === "piste") location.replace("#pistes");
+  if (await mutate(d => { d.options = d.options.filter(x => x.id !== o.id); bury(d, o.id); }, "Piste supprimée") && route.view === "piste") location.replace("#pistes");
 }
 
 /* ================= share ================= */
@@ -1633,7 +1666,7 @@ document.addEventListener("click", async e => {
   if (a === "edit-opt") openOpt(id);
   if (a === "del-opt") deleteOpt(id);
   if (a === "import-open"){ $("#importErr").textContent = ""; openDlg($("#dlgImport")); }
-  if (a === "del-todo"){ const t = state.todos.find(x=>x.id===id); await mutate(d => { d.todos = d.todos.filter(x => x.id !== id); }, t ? "Tâche supprimée" : ""); }
+  if (a === "del-todo"){ const t = state.todos.find(x=>x.id===id); await mutate(d => { d.todos = d.todos.filter(x => x.id !== id); bury(d, id); }, t ? "Tâche supprimée" : ""); }
   if (a === "decide"){
     const k = el.dataset.k, label = k==="maison" ? "la maison" : "Paris";
     if (await confirmDlg(`On part sur ${label} ?`, "Tout le monde verra que la décision est prise. Tu pourras annuler si besoin.", "Oui, c'est décidé"))
@@ -1678,7 +1711,8 @@ $("#todoForm").addEventListener("submit", async e => {
   e.preventDefault(); const text = $("#todoInput").value.trim(); if (!text || !state) return;
   const me = state.people.find(p => p.id === ls.get("nye_me"));
   const id = uid();
-  if (await mutate(d => { if (!d.todos.some(x => x.id === id)) d.todos.push({id, text, done:false, by: me?.name || ""}); }, "Tâche ajoutée")) $("#todoInput").value = "";
+  const add = d => { if (!d.todos.some(x => x.id === id) && alive(d, id)) d.todos.push({id, text, done:false, by: me?.name || ""}); };
+  if (await sendOnce("todo", () => mutate(add, "Tâche ajoutée"))) $("#todoInput").value = "";
 });
 async function importJson(){
   const err = $("#importErr"); err.textContent = "";
@@ -1690,7 +1724,7 @@ async function importJson(){
     place:String(x.place||"").slice(0,60), note:String(x.note||"").slice(0,200),
     dates:String(x.dates||"").slice(0,40), warn:String(x.warn||"").slice(0,80), state:"idee", by:"import", at:Date.now() }));
   if (!clean.length){ err.textContent = "Aucun élément avec un « title » trouvé."; return; }
-  if (await mutate(d => { const have = new Set(d.options.map(o => o.id)); d.options.push(...clean.filter(c => !have.has(c.id))); },`${clean.length} piste${clean.length>1?"s":""} importée${clean.length>1?"s":""}`)){
+  if (await sendOnce("import", () => mutate(d => { const have = new Set(d.options.map(o => o.id)); d.options.push(...clean.filter(c => !have.has(c.id) && alive(d, c.id))); }, `${clean.length} piste${clean.length>1?"s":""} importée${clean.length>1?"s":""}`))){
     $("#importTxt").value = ""; closeDlg($("#dlgImport")); location.hash = "pistes";
   }
 }
