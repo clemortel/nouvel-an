@@ -918,7 +918,7 @@ const changed = (rec, base) => Object.fromEntries(Object.entries(rec)
 function upsert(d, key, id, patch, whole){
   const i = d[key].findIndex(x => x.id === id);
   if (i >= 0) d[key][i] = {...d[key][i], ...patch};
-  else if (alive(d, id)) d[key].push(whole);
+  else if (alive(d, id)) d[key].push({...whole});   // a copy: later edits must not reach the closure
 }
 
 /* ================= labels ================= */
@@ -1056,7 +1056,7 @@ const topRow = ({o, t}) => `<li><span class="tt">${esc(o.title)}</span><span cla
 function setVote(d, pid, oid, v){
   const o = d.options.find(x => x.id === oid); if (!o) return;
   // A guest removed meanwhile: a replayed vote would bring their id back.
-  if (d.gone?.includes(pid)) return;
+  if (!alive(d, pid)) return;
   // Removing a vote that is not there must leave the option untouched, or
   // a replay (see recheck) would read the new empty `votes` as a lost change.
   if (v == null && !(o.votes && pid in o.votes)) return;
@@ -1495,8 +1495,6 @@ $("#personForm").addEventListener("submit", async e => {
   // Fixed before mutate(): its callback may be replayed (see recheck).
   const id = editingPerson || uid(), at = Date.now(), isNew = !editingPerson;
   const patch = isNew ? rec : changed(rec, personForm);
-  // Nothing touched: writing would only replace the document for nothing.
-  if (!Object.keys(patch).length){ closeDlg($("#dlgPerson")); return; }
   const whole = {...personBase, id, ...rec, at};
   const btn = $("#pSubmit"), label = btn.textContent;
   btn.disabled = true; btn.textContent = "Enregistrement…";
@@ -1550,7 +1548,6 @@ $("#optForm").addEventListener("submit", async e => {
   const me = state.people.find(p => p.id === ls.get("nye_me"));
   const id = editingOpt || uid(), at = Date.now();
   const patch = editingOpt ? changed(rec, optForm) : rec;
-  if (!Object.keys(patch).length){ closeDlg($("#dlgOpt")); return; }
   const whole = {...(optBase || {state:"idee", by: me?.name || "", at}), id, ...rec};
   const ok = await sendOnce("opt", () => mutate(
     d => upsert(d, "options", id, patch, whole),
